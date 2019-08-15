@@ -1,0 +1,2 @@
+class InvalidMessageLength(Exception):
+    pass
