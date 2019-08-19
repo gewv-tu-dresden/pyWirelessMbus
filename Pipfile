@@ -7,10 +7,13 @@ verify_ssl = true
 mypy = "*"
 black = "*"
 rope = "*"
+setuptools = "*"
+wheel = "*"
+tqdm = "*"
+twine = "*"
 
 [packages]
-pyserial = "*"
-pyserial-asyncio = "*"
+pywmbus = {editable = true,path = "."}
 
 [requires]
 python_version = "3.7"
