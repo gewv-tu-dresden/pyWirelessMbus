@@ -4,8 +4,8 @@ from serial_asyncio import SerialTransport
 import asyncio
 import logging
 from dataclasses import dataclass
-from exceptions import InvalidMessageLength
-from utils import Message
+from wmbus.exceptions import InvalidMessageLength
+from wmbus.utils import Message
 from types import MethodType
 
 from typing import Callable, Any, Optional

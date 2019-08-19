@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
-from sticks import IM871A_USB
-from devices import Device, WeptechOMSv1, WeptechOMSv2
-from exceptions import UnknownDeviceTypeError, UnknownDeviceVersion
+from wmbus.sticks import IM871A_USB
+from wmbus.devices import Device, WeptechOMSv1, WeptechOMSv2
+from wmbus.exceptions import UnknownDeviceTypeError, UnknownDeviceVersion
 import asyncio
 import logging
 import struct

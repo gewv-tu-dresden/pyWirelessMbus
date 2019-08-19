@@ -11,6 +11,7 @@ setuptools = "*"
 wheel = "*"
 tqdm = "*"
 twine = "*"
+pytest-watch = "*"
 
 [packages]
 pywirelessmbus = {editable = true,path = "."}

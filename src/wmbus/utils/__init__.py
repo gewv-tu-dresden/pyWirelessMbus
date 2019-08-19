@@ -1,4 +1,4 @@
-from utils.message import Message
+from wmbus.utils.message import Message
 
 __all__ = ["Message"]
 

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from exceptions import InvalidMessageLength
+from wmbus.exceptions import InvalidMessageLength
 from typing import Optional
 
 

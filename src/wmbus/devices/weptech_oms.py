@@ -1,9 +1,9 @@
-from devices import Device
-from utils.message import Message
+from wmbus.devices import Device
+from wmbus.utils.message import Message
 from typing import Optional
 from time import time
 from datetime import datetime
-from exceptions import InvalidMessageLength
+from wmbus.exceptions import InvalidMessageLength
 import logging
 
 logger = logging.getLogger(__name__)
