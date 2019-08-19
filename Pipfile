@@ -13,7 +13,7 @@ tqdm = "*"
 twine = "*"
 
 [packages]
-pywmbus = {editable = true,path = "."}
+pywirelessmbus = {editable = true,path = "."}
 
 [requires]
 python_version = "3.7"

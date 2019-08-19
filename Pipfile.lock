@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "89a8c4ffb1b0653caa8ba25c6e6afd12b6b40ce9d2d68e85a32ef4633847b866"
+            "sha256": "10efb87dd9ebd3f67984383b58dda2fc5c5d406293d7d432c530d1d90954624f"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -30,7 +30,7 @@
             ],
             "version": "==0.4"
         },
-        "pywmbus": {
+        "pywirelessmbus": {
             "editable": true,
             "path": "."
         }
