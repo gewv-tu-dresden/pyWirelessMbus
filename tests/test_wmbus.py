@@ -1,7 +1,52 @@
 from wmbus import WMbus
+import pty
+import pytest
+import os
+from time import sleep
+from wmbus.utils import Message
+from wmbus.devices import MockDevice
 
 
-def test_init():
-    wMbus = WMbus("IM871A_USB", path="/dev/ttyUSB0")
+@pytest.fixture
+def virtual_serial():
+    master, slave = pty.openpty()
+    return master, slave
+
+
+def test_init(virtual_serial):
+    master, slave = virtual_serial
+    wMbus = WMbus("IM871A_USB", path=os.ttyname(slave))
 
     assert type(wMbus) == WMbus
+
+
+def test_runtime(virtual_serial):
+    master, slave = virtual_serial
+    wMbus = WMbus("IM871A_USB", path=os.ttyname(slave))
+
+    wMbus.start()
+    sleep(0.5)
+    assert wMbus.running
+    wMbus.stop()
+    assert not wMbus.running
+
+
+def test_process_radio_message(virtual_serial):
+    master, slave = virtual_serial
+    wMbus = WMbus("IM871A_USB", path=os.ttyname(slave))
+
+    message = Message(
+        endpoint_id=0,
+        message_id=0,
+        payload_length=4,
+        with_timestamp_field=False,
+        with_crc_field=False,
+        with_rssi_field=False,
+        payload=b"\xFF\xFF\xFF\x12\xAA\xAA\xBB",
+    )
+
+    wMbus.process_radio_message(message)
+    device = wMbus.devices[b"\x12"]
+    assert device is not None
+    assert type(device) == MockDevice
+    assert device.last_message == message

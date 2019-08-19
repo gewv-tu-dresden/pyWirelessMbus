@@ -10,7 +10,7 @@ class Message:
     payload_length: int
     with_timestamp_field: bool
     with_rssi_field: bool
-    with_crc_Field: bool
+    with_crc_field: bool
     payload: Optional[bytes] = None
     crc: Optional[bytes] = None
     rssi: Optional[int] = None
@@ -26,7 +26,7 @@ class Message:
             + self.payloadLength
             + (self.with_timestamp_field is not None) * 4
             + (self.with_rssi_field is not None)
-            + (self.with_crc_Field is not None) * 2
+            + (self.with_crc_field is not None) * 2
         ):
             raise InvalidMessageLength(
                 f"The length of the message '{message} differ from the given."

@@ -87,7 +87,7 @@ class WeptechOMSv2(WeptechOMS):
     def process_new_message(self, message: Message):
         if message.payload_length != 46:
             raise InvalidMessageLength(
-                "Messages from the WeptechOMS should 44 bytes long."
+                "Messages from the WeptechOMS should 46 bytes long."
             )
 
         super().process_new_message(message)

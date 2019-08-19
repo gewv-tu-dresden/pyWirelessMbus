@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from wmbus.sticks import IM871A_USB
-from wmbus.devices import Device, WeptechOMSv1, WeptechOMSv2
+from wmbus.devices import Device, WeptechOMSv1, WeptechOMSv2, MockDevice
 from wmbus.exceptions import UnknownDeviceTypeError, UnknownDeviceVersion
 import asyncio
 import logging
@@ -22,7 +22,7 @@ class WMbus:
     path: str = "/dev/ttyUSB0"
 
     def __post_init__(self):
-        self._started = False
+        self.running = False
         self._loop = asyncio.get_event_loop()
 
     def start(self):
@@ -35,15 +35,13 @@ class WMbus:
 
         # register events
         self.stick.on_radio_message = self.process_radio_message
-
+        self.running = True
         self.stick.watch()
-
-        self._loop.run_forever()
-        self._loop.close()
 
     def stop(self):
         if self.stick is not None:
             self.stick.stop_watch()
+            self.running = False
 
     def process_radio_message(self, message):
         if message.payload.startswith(b"\x44\xb0\x5c"):
@@ -69,6 +67,18 @@ class WMbus:
                         "The message belongs to an unsupported version of the Weptech OMS."
                     )
 
+                self.devices[serial_number] = device
+
+            device.process_new_message(message)
+
+        elif message.payload.startswith(b"\xFF\xFF\xFF"):
+            # react on test messages
+            serial_number = message.payload[3:4]
+
+            if serial_number in self.devices:
+                device = self.devices[serial_number]
+            else:
+                device = MockDevice(serial_number=serial_number)
                 self.devices[serial_number] = device
 
             device.process_new_message(message)
