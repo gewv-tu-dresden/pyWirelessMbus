@@ -87,16 +87,3 @@ class WMbus:
             logger.warning("Got message from unknown device.")
 
 
-def main():
-    wmbus = WMbus("IM871A_USB")
-    wmbus.start()
-
-    if wmbus.stick is not None:
-        wmbus.stick.ping()
-
-    wmbus.stop()
-
-
-if __name__ == "__main__":
-    main()
-

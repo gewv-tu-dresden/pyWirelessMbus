@@ -51,8 +51,6 @@ class MessageProtocol(asyncio.Protocol):
     def connection_made(self, transport: SerialTransport):
         self.transport = transport
         logger.info("Serialport opened")
-        # transport.serial.rts = False  # You can manipulate Serial object via transport
-        transport.write(b"\xa5\x01\x01\x00")  # Write serial data via transport
 
     def data_received(self, data):
         logger.debug("data received %s", repr(data))
@@ -83,7 +81,7 @@ class MessageProtocol(asyncio.Protocol):
             payload_length=int(data[3]),
             with_timestamp_field=control_field & 0x2 > 0,
             with_rssi_field=control_field & 0x4 > 0,
-            with_crc_Field=control_field & 0x8 > 0,
+            with_crc_field=control_field & 0x8 > 0,
         )
         message.payload = data[4 : 4 + int(message.payload_length)]
 
@@ -97,7 +95,7 @@ class MessageProtocol(asyncio.Protocol):
         logging.debug("Payload Length: %s", message.payload_length)
         logging.debug("Payload: %s", message.payload.hex())
 
-        if message.with_crc_Field:
+        if message.with_crc_field:
             message.crc = data[-2:]
             logging.debug("CRC: %s", message.crc)
             # TODO: add CRC Check
