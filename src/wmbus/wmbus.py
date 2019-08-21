@@ -7,8 +7,9 @@ import logging
 import struct
 from time import sleep
 from typing import Optional, Union, Dict
+from os import environ
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=getattr(logging, environ.get("LOG_LEVEL") or "INFO"))
 logger = logging.getLogger(__name__)
 
 STICK_TYPES = {"IM871A_USB": IM871A_USB}
@@ -85,5 +86,4 @@ class WMbus:
 
         else:
             logger.warning("Got message from unknown device.")
-
 

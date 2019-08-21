@@ -17,7 +17,7 @@ For testing you can install all deps and start the module with that commands.
 ```
 pipenv install
 pipenv shell
-python ./wmbus/wmbus.py
+python scr/monitor.py
 ```
 
 ## Plans
