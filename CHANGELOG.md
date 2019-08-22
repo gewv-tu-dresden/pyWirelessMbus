@@ -2,13 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## Unreleased
+
+## [0.2] - 2019-08-22
 
 ### Added
 
 - different tests
 - monitor script
 - change log level per environment variable
+- possible to modify configuration of IM871A USB Stick
 
 ## [0.1.1] - 2019-08-19
 
