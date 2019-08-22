@@ -8,6 +8,12 @@ def main():
     wmbus = WMbus("IM871A_USB")
     wmbus.start()
 
+    asyncio.run(asyncio.sleep(1))
+    wmbus.stick.auto_timestamp_attachment = True
+
+    asyncio.run(asyncio.sleep(1))
+    wmbus.stick.auto_rssi_attachment = True
+
     loop.run_forever()
     loop.close()
 

@@ -6,7 +6,7 @@ from typing import Optional
 @dataclass
 class Message:
     endpoint_id: int
-    message_id: int
+    message_id: bytes
     payload_length: int
     with_timestamp_field: bool
     with_rssi_field: bool
