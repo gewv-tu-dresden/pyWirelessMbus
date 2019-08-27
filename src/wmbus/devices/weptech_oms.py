@@ -24,13 +24,17 @@ class WeptechOMS(Device):
         super().__init__(*args, **kwargs)
 
     def process_new_message(self, message: Message):
+        if message.payload is None:
+            logger.warning(
+                "Receive Message with empty payload from Weptech Device %s.", self.id
+            )
+            return
+
         self.counter = message.payload[10]
         self.status = message.payload[11]
         self.updated_at = time()
 
-        logger.info(
-            "Receive new measurement from Weptech OMS Device %s", self.serial_number
-        )
+        logger.info("Receive new measurement from Weptech OMS Device %s", self.id)
         logger.debug("Counter: %s", self.counter)
         logger.debug("Status: %s", bin(self.status))
         logger.info(
@@ -85,6 +89,12 @@ class WeptechOMSv2(WeptechOMS):
         super().__init__(*args, **kwargs)
 
     def process_new_message(self, message: Message):
+        if message.payload is None:
+            logger.warning(
+                "Receive Message with empty payload from Weptech Sensor %s.", self.id
+            )
+            return
+
         if message.payload_length != 46:
             raise InvalidMessageLength(
                 "Messages from the WeptechOMS should 46 bytes long."

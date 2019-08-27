@@ -3,8 +3,8 @@ from abc import ABC, abstractmethod
 
 
 class Device(ABC):
-    def __init__(self, serial_number: str):
-        self.serial_number = serial_number
+    def __init__(self, device_id: str):
+        self.id = device_id
 
     @abstractmethod
     def process_new_message(self, message):

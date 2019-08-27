@@ -42,11 +42,11 @@ def test_process_radio_message(virtual_serial):
         with_timestamp_field=False,
         with_crc_field=False,
         with_rssi_field=False,
-        payload=b"\xFF\xFF\xFF\x12\xAA\xAA\xBB",
+        payload=b"\x44\xff\xff\x12\xaa\xaa\xbb",
     )
 
     wMbus.process_radio_message(message)
-    device = wMbus.devices[b"\x12"]
+    device = wMbus.devices[b"\xff\xff\xbb\xaa\xaa\x12"]
     assert device is not None
     assert type(device) == MockDevice
     assert device.last_message == message
