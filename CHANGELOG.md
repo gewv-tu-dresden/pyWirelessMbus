@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Changed
+
+- move examples in root folder
+
 ## [0.2.1] - 2019-08-27
 
 ### Added
