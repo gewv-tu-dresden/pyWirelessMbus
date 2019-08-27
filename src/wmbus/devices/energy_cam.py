@@ -1,5 +1,6 @@
 from wmbus.devices import Device
-from wmbus.utils.message import Message
+from wmbus.utils.message import IMSTMessage
+from wmbus.utils.message import WMbusMessage
 from typing import Optional
 from time import time
 from datetime import datetime
@@ -21,16 +22,12 @@ class EnergyCam(Device):
 
         super().__init__(*args, **kwargs)
 
-    def process_new_message(self, message: Message):
-        if message.payload is None:
-            logger.warning(
-                "Receive Message with empty payload from Energy Cam %s.", self.id
-            )
-            return
-
+    def process_new_message(self, message: WMbusMessage) -> WMbusMessage:
         logger.info(
             "Got new message from %s meter with ID: %s",
             METER_TYPE[self.meter_type],
             self.id,
         )
-        logger.info("Raw Message: %s", message.payload[9:].hex())
+        logger.info("Raw Message: %s", message.raw.hex())
+
+        return WMbusMessage(message)

@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
 from wmbus.sticks import IM871A_USB
-from typing import Optional
+from typing import Optional, Any, List, Dict
+from wmbus.utils import WMbusMessage
 import logging
 
 logger = logging.getLogger(__name__)
@@ -16,7 +17,7 @@ class Device(ABC):
         self._ref_stick = stick
 
     @abstractmethod
-    def process_new_message(self, message):
+    def process_new_message(self, message: WMbusMessage) -> WMbusMessage:
         pass
 
     def set_aes_key(self, key: bytes):

@@ -1,10 +1,15 @@
 from dataclasses import dataclass
 from wmbus.exceptions import InvalidMessageLength
-from typing import Optional
+from typing import Optional, List, Dict, Any
+import time
 
 
 @dataclass
-class Message:
+class IMSTMessage:
+    """
+    Messagen, that was produced from the IM871 stick.
+    """
+
     endpoint_id: int
     message_id: bytes
     payload_length: int
@@ -33,3 +38,53 @@ class Message:
             )
 
         return true
+
+
+class WMbusMessage:
+    length: int
+    manufacturer_id: bytes
+    serial_number: bytes
+    version: bytes
+    device_type: bytes
+    control_field: bytes
+    access_number: int
+    status: int
+    raw: bytes
+    values: List[Dict[str, Any]]
+
+    def __init__(self, raw_message):
+        self.raw = raw_message.payload
+
+        # Link Layer
+        ## L-Field
+        self.length = raw_message.payload[0]
+        ## C-Field
+        self.command = raw_message.payload[1:2]
+        ## M-Field
+        self.manufacturer_id = raw_message.payload[2:4]
+        ## A-Field
+        self.serial_number = raw_message.payload[3:8]
+        self.version = raw_message.payload[8:9]
+        self.device_type = raw_message.payload[9:10]
+
+        ## CRC0
+        ## TODO: Implement byte 10 and 11 if exists
+
+        ## CI Field
+        self.control_field = raw_message.payload[10:11]
+        self.access_number = raw_message.payload[11]
+        self.status = raw_message.payload[12]
+        self.configuration_word = raw_message.payload[13:14]
+        self.values = []
+
+        ## CRC1
+        ## TODO: Implement byte 28 and 29 if exists
+
+    def add_value(self, value: float, timestamp: float = None, unit: str = "unset"):
+        if value is None:
+            raise ValueError("Cant add empty value to processed message.")
+
+        if timestamp is None:
+            timestamp = time.time()
+
+        self.values.append({"value": value, "unit": unit, "timestamp": timestamp})

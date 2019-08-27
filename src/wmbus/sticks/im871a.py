@@ -5,7 +5,7 @@ import asyncio
 import logging
 from dataclasses import dataclass
 from wmbus.exceptions import InvalidMessageLength
-from wmbus.utils import Message
+from wmbus.utils import IMSTMessage
 from types import MethodType
 
 from typing import Callable, Any, Optional
@@ -106,7 +106,7 @@ HWTEST_MSG_RADIOTEST_REQ = b"\x02"
 @dataclass
 class MessageProtocol(asyncio.Protocol):
     transport = None
-    on_message: Callable[[Any, Message], None] = NOOP
+    on_message: Callable[[Any, IMSTMessage], None] = NOOP
 
     def connection_made(self, transport: SerialTransport):
         self.transport = transport
@@ -135,7 +135,7 @@ class MessageProtocol(asyncio.Protocol):
     async def decode_message(self, data: bytes):
         logger.debug("Receive new message: %s", data.hex())
         control_field = data[1] >> 4
-        message = Message(
+        message = IMSTMessage(
             endpoint_id=data[1] & 0xF,
             message_id=data[2:3],
             payload_length=int(data[3]),
@@ -143,7 +143,7 @@ class MessageProtocol(asyncio.Protocol):
             with_rssi_field=control_field & 0x4 > 0,
             with_crc_field=control_field & 0x8 > 0,
         )
-        message.payload = data[4 : 4 + int(message.payload_length)]
+        message.payload = data[3 : 4 + int(message.payload_length)]
 
         crc = None
         rssi = None
@@ -182,7 +182,7 @@ class IM871A_USB:
     on_new_message: Callable[[Any, bytes], None] = NOOP
     transport: Optional[SerialTransport] = None
     message_protocol: Optional[MessageProtocol] = None
-    on_radio_message: Callable[[Any, Message], None] = NOOP
+    on_radio_message: Callable[[Any, IMSTMessage], None] = NOOP
 
     def __post_init__(self):
         self._device_mode = None
@@ -273,7 +273,7 @@ class IM871A_USB:
         # Load config from stick
         self.get_device_configuration()
 
-    def process_message(self, message: Message):
+    def process_message(self, message: IMSTMessage):
         if message.endpoint_id == RADIOLINK_ID:
             self.process_radio_message(message)
         elif message.endpoint_id == DEVMGMT_ID:
@@ -287,10 +287,10 @@ class IM871A_USB:
         else:
             logger.warning("Receive message with unknown endpoint id.")
 
-    def process_radio_message(self, message: Message):
+    def process_radio_message(self, message: IMSTMessage):
         self.on_radio_message(message)
 
-    def process_devicemanagment_message(self, message: Message):
+    def process_devicemanagment_message(self, message: IMSTMessage):
         if message.message_id == DEVMGMT_MSG_PING_RSP:
             logger.info("Receive a valid ping response from IM871A")
         elif message.message_id == DEVMGMT_MSG_RESET_RES:
@@ -332,7 +332,7 @@ class IM871A_USB:
         else:
             logger.warning("Received devicemanagment message is not implemented yet.")
 
-    def process_device_info_message(self, info_message: Message):
+    def process_device_info_message(self, info_message: IMSTMessage):
         if info_message.payload is None:
             logger.warning("Receive device info message with no content.")
             return
@@ -347,7 +347,7 @@ class IM871A_USB:
         logger.info("HCI Protocol version: %s", info_message.payload[3:4].hex())
         logger.info("Device ID: %s", info_message.payload[4:8].hex())
 
-    def process_device_config_message(self, config_message: Message):
+    def process_device_config_message(self, config_message: IMSTMessage):
         logger.info("Receive device config from stick:")
         if config_message.payload is None:
             logger.warning("Receive device config with no content.")

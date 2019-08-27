@@ -3,7 +3,7 @@ import pty
 import pytest
 import os
 from time import sleep
-from wmbus.utils import Message
+from wmbus.utils import IMSTMessage, WMbusMessage
 from wmbus.devices import MockDevice
 
 
@@ -35,18 +35,19 @@ def test_process_radio_message(virtual_serial):
     master, slave = virtual_serial
     wMbus = WMbus("IM871A_USB", path=os.ttyname(slave))
 
-    message = Message(
+    message = IMSTMessage(
         endpoint_id=0,
         message_id=0,
         payload_length=4,
         with_timestamp_field=False,
         with_crc_field=False,
         with_rssi_field=False,
-        payload=b"\x44\xff\xff\x12\xaa\xaa\xbb",
+        payload=b"\x12\x44\xff\xff\x12\xaa\xaa\xbb\x12\x13\x14\x15\x12\x13\x14\x15",
     )
 
     wMbus.process_radio_message(message)
-    device = wMbus.devices[b"\xff\xff\xbb\xaa\xaa\x12"]
+    print(wMbus.devices)
+    device = wMbus.devices[b"\xff\xff\x12\xaa\xaa\xbb\x12\x13"]
     assert device is not None
     assert type(device) == MockDevice
-    assert device.last_message == message
+    assert type(device.last_message) == WMbusMessage

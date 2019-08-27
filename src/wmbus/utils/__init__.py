@@ -1,4 +1,5 @@
-from wmbus.utils.message import Message
+from wmbus.utils.message import IMSTMessage
+from wmbus.utils.message import WMbusMessage
 
-__all__ = ["Message"]
+__all__ = ["IMSTMessage", "WMbusMessage"]
 

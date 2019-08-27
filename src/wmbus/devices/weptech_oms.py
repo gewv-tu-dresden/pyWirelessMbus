@@ -1,5 +1,6 @@
 from wmbus.devices import Device
-from wmbus.utils.message import Message
+from wmbus.utils.message import IMSTMessage
+from wmbus.utils.message import WMbusMessage
 from typing import Optional
 from time import time
 from datetime import datetime
@@ -13,44 +14,36 @@ class WeptechOMS(Device):
     updated_at: Optional[float]
     status: int
     temperatur: float
-    counter: int
 
     def __init__(self, *args, **kwargs):
         self.updated_at = None
         self.status = 0
         self.temperatur = -300
-        self.counter = -1
+        self.humidity = -1
 
         super().__init__(*args, **kwargs)
 
-    def process_new_message(self, message: Message):
-        if message.payload is None:
-            logger.warning(
-                "Receive Message with empty payload from Weptech Device %s.", self.id
-            )
-            return
-
-        self.counter = message.payload[10]
-        self.status = message.payload[11]
-        self.updated_at = time()
-
-        logger.info("Receive new measurement from Weptech OMS Device %s", self.id)
-        logger.debug("Counter: %s", self.counter)
-        logger.debug("Status: %s", bin(self.status))
-        logger.info(
-            "Timestamp: %s",
-            datetime.utcfromtimestamp(self.updated_at).strftime("%Y-%m-%d %H:%M:%S"),
-        )
-
-        # decode humidity
+    def process_new_message(self, message: WMbusMessage) -> WMbusMessage:
         try:
-            self.temperatur = self.decode_value_block(message.payload[18:20])
+            self.temperatur = self.decode_value_block(message.raw[19:21])
+            message.add_value(self.temperatur, unit="°C")
             logger.info("Temperature: %s °C", self.temperatur)
         except ValueError:
             logger.error(
                 "Failed to decode the temperature value of the webtech oms device %s. Maybe AES encryption is activated.",
                 self.id,
             )
+
+        self.updated_at = time()
+        logger.info("Receive new measurement from Weptech OMS Device %s", self.id)
+        logger.debug("Counter: %s", message.access_number)
+        logger.debug("Status: %s", bin(message.status))
+        logger.info(
+            "Timestamp: %s",
+            datetime.utcfromtimestamp(self.updated_at).strftime("%Y-%m-%d %H:%M:%S"),
+        )
+
+        return message
 
     @staticmethod
     def decode_value_block(block: bytes) -> float:
@@ -73,13 +66,13 @@ class WeptechOMSv1(WeptechOMS):
 
         super().__init__(*args, **kwargs)
 
-    def process_new_message(self, message: Message):
-        if message.payload_length != 30:
+    def process_new_message(self, message: WMbusMessage) -> WMbusMessage:
+        if message.length != 30:
             raise InvalidMessageLength(
                 "Messages from the WeptechOMS should 30 bytes long."
             )
 
-        super().process_new_message(message)
+        return super().process_new_message(message)
 
 
 class WeptechOMSv2(WeptechOMS):
@@ -94,26 +87,25 @@ class WeptechOMSv2(WeptechOMS):
 
         super().__init__(*args, **kwargs)
 
-    def process_new_message(self, message: Message):
-        if message.payload is None:
-            logger.warning(
-                "Receive Message with empty payload from Weptech Sensor %s.", self.id
-            )
-            return
-
-        if message.payload_length != 46:
+    def process_new_message(self, message: WMbusMessage) -> WMbusMessage:
+        if message.length != 46:
             raise InvalidMessageLength(
                 "Messages from the WeptechOMS should 46 bytes long."
             )
 
-        super().process_new_message(message)
+        wmbus_message = super().process_new_message(message)
+        if wmbus_message is None:
+            raise TypeError("Receive None from super method to process new messages.")
 
         # decode humidity
         try:
-            self.humidity = self.decode_value_block(message.payload[23:25])
+            self.humidity = self.decode_value_block(message.raw[24:26])
+            wmbus_message.add_value(self.humidity, unit="%")
             logger.info("Humidity: %s %%", self.humidity)
         except ValueError:
             logger.error(
                 "Failed to decode the humidity value of the webtech oms device %s. Maybe AES encryption is activated.",
                 self.id,
             )
+
+        return wmbus_message
