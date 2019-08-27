@@ -4,10 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## [0.2.1] - 2019-08-27
+
 ### Added
 
 - aes decryption per key deployment
-- register on events
+- register hooks for messages, start, stop
 
 ## [0.2] - 2019-08-22
 

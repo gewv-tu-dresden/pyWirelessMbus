@@ -10,7 +10,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="pyWirelessMbus",
-    version="0.2",
+    version="0.2.1",
     author="Karl Wolffgang",
     author_email="karlwolffgang@googlemail.com",
     description="A tool to receive and send Wireless-M-Bus messages.",
