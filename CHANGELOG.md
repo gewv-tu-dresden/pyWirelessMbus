@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+### Added
+
+- aes decryption per key deployment
+- register on events
+
 ## [0.2] - 2019-08-22
 
 ### Added

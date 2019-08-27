@@ -74,8 +74,15 @@ DEVMGMT_MSG_GET_CONFIG_REQ = b"\x05"
 DEVMGMT_MSG_GET_CONFIG_RES = b"\x06"
 DEVMGMT_MSG_RESET_REQ = b"\x07"
 DEVMGMT_MSG_RESET_RES = b"\x08"
+DEVMGMT_MSG_FACTORY_RESET_REQ = b"\x09"
+DEVMGMT_MSG_FACTORY_RESET_RES = b"\x0A"
 DEVMGMT_MSG_GET_DEVICEINFO_REQ = b"\x0F"
 DEVMGMT_MSG_GET_DEVICEINFO_RES = b"\x10"
+DEVMGMT_MSG_ENABLE_AES_ENCKEY_REQ = b"\x23"
+DEVMGMT_MSG_ENABLE_AES_ENCKEY_RSP = b"\x24"
+DEVMGMT_MSG_SET_AES_DECKEY_REQ = b"\x25"
+DEVMGMT_MSG_SET_AES_DECKEY_RSP = b"\x26"
+DEVMGMT_MSG_AES_DEC_ERROR_IND = b"\x27"
 
 # Radiolink messages
 RADIOLINK_MSG_WMBUSMSG_REQ = b"\x01"
@@ -297,6 +304,31 @@ class IM871A_USB:
                 "Receive a valid config set response. Reload config from device."
             )
             self.get_device_configuration()
+        elif message.message_id == DEVMGMT_MSG_SET_AES_DECKEY_RSP:
+            if message.payload is None:
+                logger.error("Receive invalid response for setting AES Key.")
+                return
+
+            status = bool(message.payload[0])
+            logger.info("Set the AES Key. Operation %s", "was successful" if status else "failed")
+        elif message.message_id == DEVMGMT_MSG_ENABLE_AES_ENCKEY_RSP:
+            if message.payload is None:
+                logger.error("Receive invalid response for enable/disable AES encryption.")
+                return
+
+            status = bool(message.payload[0])
+            logger.info("Activating/Deactivating the AES Encrytion. Operation %s", "was successful" if status else "failed")
+        elif message.message_id == DEVMGMT_MSG_AES_DEC_ERROR_IND:
+            logger.warning("Failed to decrypt the message a device. Maybe the wrong or no key is stored.")
+            if message.payload is not None:
+                logger.info("Device Header: %s", message.payload.hex())
+        elif message.message_id == DEVMGMT_MSG_FACTORY_RESET_RES:
+            if message.payload is None:
+                logger.error("Receive invalid response for factory reset.")
+                return
+
+            status = bool(message.payload[0])
+            logger.info("Requested the factory reset. Operation %s", "was successful" if status else "failed")
         else:
             logger.warning("Received devicemanagment message is not implemented yet.")
 
@@ -476,12 +508,22 @@ class IM871A_USB:
         )
 
     def reset(self):
-        logger.info("Send Resetodule")
+        logger.info("Request Reset")
         payload_length = b"\x00"
         control_field = bytes([(0 << 4) + DEVMGMT_ID])
 
         self.send_message(
             START_OF_FRAME + control_field + DEVMGMT_MSG_RESET_REQ + payload_length
+        )
+
+    def factory_reset(self, reboot: bool = False):
+        logger.info("Request factory reset")
+        payload_length = b"\x01"
+        reboot_flag = b"\x01" if reboot else b"\x00"
+        control_field = bytes([(0 << 4) + DEVMGMT_ID])
+
+        self.send_message(
+            START_OF_FRAME + control_field + DEVMGMT_MSG_FACTORY_RESET_REQ + payload_length + reboot_flag
         )
 
     def get_device_infos(self):
@@ -521,3 +563,45 @@ class IM871A_USB:
             + configuration
         )
 
+    def _change_aes_encryption(self, enable: bool, persistant: bool = False):
+        logger.info("%s the aes encryption.", "Enable " if enable else "Disable ")
+
+        payload_length = b"\x02"
+        control_field = bytes([(0 << 4) + DEVMGMT_ID])
+        nvm_flag = b"\x01" if persistant else b"\x00"
+        activation_flag = b"\x01" if enable else b"\x00"
+
+        self.send_message(
+            START_OF_FRAME
+            + control_field
+            + DEVMGMT_MSG_ENABLE_AES_ENCKEY_REQ
+            + payload_length
+            + nvm_flag
+            + activation_flag
+        )
+
+    def enable_aes_encryption(self, persistant: bool = False):
+        self._change_aes_encryption(True, persistant)
+
+    def disable_aes_encryption(self, persistant: bool = False):
+        self._change_aes_encryption(False, persistant)
+
+    def set_aes_decryption_key(self, table_index: int, device_id: str, key: bytes):
+        """
+        Set multiple keys for divices. 
+        The process activate the decryption. Resetable with factory reset.
+        """
+        logger.info("Set decryption key for device %s on table position %s.", device_id, table_index)
+
+        payload_length = b"\x19"
+        control_field = bytes([(0 << 4) + DEVMGMT_ID])
+
+        self.send_message(
+            START_OF_FRAME
+            + control_field
+            + DEVMGMT_MSG_SET_AES_DECKEY_REQ
+            + payload_length
+            + bytes([table_index])
+            + bytes.fromhex(device_id)
+            + key
+        )

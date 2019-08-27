@@ -43,8 +43,14 @@ class WeptechOMS(Device):
         )
 
         # decode humidity
-        self.temperatur = self.decode_value_block(message.payload[18:20])
-        logger.info("Temperature: %s °C", self.temperatur)
+        try:
+            self.temperatur = self.decode_value_block(message.payload[18:20])
+            logger.info("Temperature: %s °C", self.temperatur)
+        except ValueError:
+            logger.error(
+                "Failed to decode the temperature value of the webtech oms device %s. Maybe AES encryption is activated.",
+                self.id,
+            )
 
     @staticmethod
     def decode_value_block(block: bytes) -> float:
@@ -103,5 +109,11 @@ class WeptechOMSv2(WeptechOMS):
         super().process_new_message(message)
 
         # decode humidity
-        self.humidity = self.decode_value_block(message.payload[23:25])
-        logger.info("Humidity: %s %%", self.humidity)
+        try:
+            self.humidity = self.decode_value_block(message.payload[23:25])
+            logger.info("Humidity: %s %%", self.humidity)
+        except ValueError:
+            logger.error(
+                "Failed to decode the humidity value of the webtech oms device %s. Maybe AES encryption is activated.",
+                self.id,
+            )

@@ -6,19 +6,20 @@ import asyncio
 import logging
 import struct
 from time import sleep
-from typing import Optional, Union, Dict
+from typing import Optional, Union, Dict, Callable, Any
 from os import environ
 
 logging.basicConfig(level=getattr(logging, environ.get("LOG_LEVEL") or "INFO"))
 logger = logging.getLogger(__name__)
 
 STICK_TYPES = {"IM871A_USB": IM871A_USB}
+NOOP = lambda *args: None
 
 # Manufacturer
-WEPTECH = b"\x5c\xb0"
-FASTFORWARD = b"\x18\xc4"
-IMST = b"\x25\xb3"
-MOCK = b"\xff\xff"
+WEPTECH = b"\x5c\xb0"[::-1]
+FASTFORWARD = b"\x18\xc4"[::-1]
+IMST = b"\x25\xb3"[::-1]
+MOCK = b"\xff\xff"[::-1]
 
 
 @dataclass
@@ -27,6 +28,10 @@ class WMbus:
     stick: Optional[Union[IM871A_USB]] = None
     devices: Dict[bytes, Device] = field(default_factory=dict)
     path: str = "/dev/ttyUSB0"
+    on_device_registration: Callable[[Device], None] = NOOP
+    on_radio_message: Callable[[Device], None] = NOOP
+    on_start: Callable[[], None] = NOOP
+    on_stop: Callable[[], None] = NOOP
 
     def __post_init__(self):
         self.running = False
@@ -44,11 +49,13 @@ class WMbus:
         self.stick.on_radio_message = self.process_radio_message
         self.running = True
         self.stick.watch()
+        self.on_start()
 
     def stop(self):
         if self.stick is not None:
             self.stick.stop_watch()
             self.running = False
+            self.on_stop()
 
     def process_radio_message(self, message):
         # 44 -> SND_NR (Send, No Response)
@@ -56,11 +63,12 @@ class WMbus:
             logger.warning("Unknown radio message.")
             return
 
-        manufacturer_id = message.payload[1:3][::-1]
-        serial_number = message.payload[3:7][::-1]
+        manufacturer_id = message.payload[1:3]
+        serial_number = message.payload[3:7]
         version = message.payload[7:8]
+        device_type = message.payload[8:9]
         device = None
-        device_id = manufacturer_id + serial_number + version
+        device_id = manufacturer_id + serial_number + version + device_type
 
         if device_id in self.devices:
             device = self.devices[device_id]
@@ -69,10 +77,18 @@ class WMbus:
             if manufacturer_id == WEPTECH:
                 if version == b"\x01":
                     # Temp Sensor
-                    device = WeptechOMSv1(device_id=device_id.hex())
+                    device = WeptechOMSv1(
+                        device_id=device_id.hex(),
+                        index=len(self.devices),
+                        stick=self.stick,
+                    )
                 elif version == b"\x02":
                     # Temp/Hum Sensor
-                    device = WeptechOMSv2(device_id=device_id.hex())
+                    device = WeptechOMSv2(
+                        device_id=device_id.hex(),
+                        index=len(self.devices),
+                        stick=self.stick,
+                    )
                 else:
                     logger.error(
                         "The message belongs to an unsupported weptech device. Version: %s",
@@ -84,7 +100,12 @@ class WMbus:
                 if version == b"\x01":
                     # Energy Cam
                     meter_type = message.payload[8]
-                    device = EnergyCam(device_id=device_id.hex(), meter_type=meter_type)
+                    device = EnergyCam(
+                        device_id=device_id.hex(),
+                        meter_type=meter_type,
+                        index=len(self.devices),
+                        stick=self.stick,
+                    )
                 else:
                     logger.error(
                         "The message belongs to an unsupported fastforward device. Version: %s",
@@ -93,7 +114,9 @@ class WMbus:
                     return
 
             elif manufacturer_id == MOCK:
-                device = MockDevice(device_id=device_id)
+                device = MockDevice(
+                    device_id=device_id.hex(), index=len(self.devices), stick=self.stick
+                )
             else:
                 logger.warning(
                     "Got message from unknown manufactur: %s", manufacturer_id
@@ -102,6 +125,8 @@ class WMbus:
 
             logger.info("Create new Device with id %s", device_id.hex())
             self.devices[device_id] = device
+            self.on_device_registration(device)
 
-        device.process_new_message(message)
+        processed_message = device.process_new_message(message)
+        self.on_radio_message(device, processed_message)
 
