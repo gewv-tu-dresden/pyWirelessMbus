@@ -309,17 +309,27 @@ class IM871A_USB:
                 logger.error("Receive invalid response for setting AES Key.")
                 return
 
-            status = bool(message.payload[0])
-            logger.info("Set the AES Key. Operation %s", "was successful" if status else "failed")
+            status = bool(message.payload[1])
+            logger.info(
+                "Set the AES Key. Operation %s",
+                "was successful" if status else "failed",
+            )
         elif message.message_id == DEVMGMT_MSG_ENABLE_AES_ENCKEY_RSP:
             if message.payload is None:
-                logger.error("Receive invalid response for enable/disable AES encryption.")
+                logger.error(
+                    "Receive invalid response for enable/disable AES encryption."
+                )
                 return
 
-            status = bool(message.payload[0])
-            logger.info("Activating/Deactivating the AES Encrytion. Operation %s", "was successful" if status else "failed")
+            status = bool(message.payload[1])
+            logger.info(
+                "Activating/Deactivating the AES Encrytion. Operation %s",
+                "was successful" if status else "failed",
+            )
         elif message.message_id == DEVMGMT_MSG_AES_DEC_ERROR_IND:
-            logger.warning("Failed to decrypt the message a device. Maybe the wrong or no key is stored.")
+            logger.warning(
+                "Failed to decrypt the message a device. Maybe the wrong or no key is stored."
+            )
             if message.payload is not None:
                 logger.info("Device Header: %s", message.payload.hex())
         elif message.message_id == DEVMGMT_MSG_FACTORY_RESET_RES:
@@ -327,8 +337,11 @@ class IM871A_USB:
                 logger.error("Receive invalid response for factory reset.")
                 return
 
-            status = bool(message.payload[0])
-            logger.info("Requested the factory reset. Operation %s", "was successful" if status else "failed")
+            status = bool(message.payload[1])
+            logger.info(
+                "Requested the factory reset. Operation %s",
+                "was successful" if status else "failed",
+            )
         else:
             logger.warning("Received devicemanagment message is not implemented yet.")
 
@@ -338,14 +351,14 @@ class IM871A_USB:
             return
 
         logger.info("Receive device infos from stick:")
-        logger.info("Module Type: %s", info_message.payload[0:1].hex())
+        logger.info("Module Type: %s", info_message.payload[1:2].hex())
 
-        self._device_mode = info_message.payload[1:2].hex()
+        self._device_mode = info_message.payload[2:3].hex()
         logger.info("Device Mode: %s", self.device_mode)
 
-        logger.info("Firmware: %s", info_message.payload[2:3].hex())
-        logger.info("HCI Protocol version: %s", info_message.payload[3:4].hex())
-        logger.info("Device ID: %s", info_message.payload[4:8].hex())
+        logger.info("Firmware: %s", info_message.payload[3:4].hex())
+        logger.info("HCI Protocol version: %s", info_message.payload[4:5].hex())
+        logger.info("Device ID: %s", info_message.payload[5:9].hex())
 
     def process_device_config_message(self, config_message: IMSTMessage):
         logger.info("Receive device config from stick:")
@@ -353,8 +366,8 @@ class IM871A_USB:
             logger.warning("Receive device config with no content.")
             return
 
-        information_indicator_flag = config_message.payload[0]
-        offset = 1
+        information_indicator_flag = config_message.payload[1]
+        offset = 2
 
         """
         Device Mode
@@ -523,7 +536,11 @@ class IM871A_USB:
         control_field = bytes([(0 << 4) + DEVMGMT_ID])
 
         self.send_message(
-            START_OF_FRAME + control_field + DEVMGMT_MSG_FACTORY_RESET_REQ + payload_length + reboot_flag
+            START_OF_FRAME
+            + control_field
+            + DEVMGMT_MSG_FACTORY_RESET_REQ
+            + payload_length
+            + reboot_flag
         )
 
     def get_device_infos(self):
@@ -591,7 +608,11 @@ class IM871A_USB:
         Set multiple keys for divices. 
         The process activate the decryption. Resetable with factory reset.
         """
-        logger.info("Set decryption key for device %s on table position %s.", device_id, table_index)
+        logger.info(
+            "Set decryption key for device %s on table position %s.",
+            device_id,
+            table_index,
+        )
 
         payload_length = b"\x19"
         control_field = bytes([(0 << 4) + DEVMGMT_ID])
