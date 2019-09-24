@@ -88,14 +88,14 @@ class WMbus:
                     device = WeptechOMSv1(
                         device_id=device_id.hex(),
                         index=len(self.devices),
-                        stick=self.stick,
+                        on_set_aes_key=self.stick.set_aes_decryption_key,
                     )
                 elif wmbus_message.version == b"\x02":
                     # Temp/Hum Sensor
                     device = WeptechOMSv2(
                         device_id=device_id.hex(),
                         index=len(self.devices),
-                        stick=self.stick,
+                        on_set_aes_key=self.stick.set_aes_decryption_key,
                     )
                 else:
                     logger.error(
@@ -112,7 +112,7 @@ class WMbus:
                         device_id=device_id.hex(),
                         meter_type=meter_type,
                         index=len(self.devices),
-                        stick=self.stick,
+                        on_set_aes_key=self.stick.set_aes_decryption_key,
                     )
                 else:
                     logger.error(
@@ -123,7 +123,9 @@ class WMbus:
 
             elif wmbus_message.manufacturer_id == MOCK:
                 device = MockDevice(
-                    device_id=device_id.hex(), index=len(self.devices), stick=self.stick
+                    device_id=device_id.hex(),
+                    index=len(self.devices),
+                    on_set_aes_key=self.stick.set_aes_decryption_key,
                 )
             else:
                 logger.warning(

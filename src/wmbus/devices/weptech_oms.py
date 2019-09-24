@@ -13,21 +13,18 @@ logger = logging.getLogger(__name__)
 class WeptechOMS(Device):
     updated_at: Optional[float]
     status: int
-    temperatur: float
 
     def __init__(self, *args, **kwargs):
         self.updated_at = None
         self.status = 0
-        self.temperatur = -300
-        self.humidity = -1
 
         super().__init__(*args, **kwargs)
 
     def process_new_message(self, message: WMbusMessage) -> WMbusMessage:
         try:
-            self.temperatur = self.decode_value_block(message.raw[19:21])
-            message.add_value(self.temperatur, unit="°C")
-            logger.info("Temperature: %s °C", self.temperatur)
+            value = self.decode_value_block(message.raw[19:21])
+            message.add_value(value, unit="°C")
+            logger.info("Temperature: %s °C", value)
         except ValueError:
             logger.error(
                 "Failed to decode the temperature value of the webtech oms device %s. Maybe AES encryption is activated.",
@@ -78,13 +75,10 @@ class WeptechOMSv1(WeptechOMS):
 class WeptechOMSv2(WeptechOMS):
     version: int
     sensor_type: str
-    humidity: Optional[float]
 
     def __init__(self, *args, **kwargs):
         self.version = 2
         self.sensor_type = "Temp/Hum Sensor"
-        self.humidity = None
-
         super().__init__(*args, **kwargs)
 
     def process_new_message(self, message: WMbusMessage) -> WMbusMessage:
@@ -99,9 +93,9 @@ class WeptechOMSv2(WeptechOMS):
 
         # decode humidity
         try:
-            self.humidity = self.decode_value_block(message.raw[24:26])
-            wmbus_message.add_value(self.humidity, unit="%")
-            logger.info("Humidity: %s %%", self.humidity)
+            value = self.decode_value_block(message.raw[24:26])
+            wmbus_message.add_value(value, unit="%")
+            logger.info("Humidity: %s %%", value)
         except ValueError:
             logger.error(
                 "Failed to decode the humidity value of the webtech oms device %s. Maybe AES encryption is activated.",
