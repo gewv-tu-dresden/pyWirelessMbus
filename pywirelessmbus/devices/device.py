@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
-from wmbus.sticks import IM871A_USB
+from pywirelessmbus.sticks import IM871A_USB
 from typing import Optional, Any, List, Dict, Callable
-from wmbus.utils import WMbusMessage
+from pywirelessmbus.utils import WMbusMessage
 import logging
 
 logger = logging.getLogger(__name__)

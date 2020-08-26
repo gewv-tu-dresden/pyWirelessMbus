@@ -1,4 +1,4 @@
-from wmbus import WMbus
+from pywirelessmbus import WMbus
 from time import sleep
 import asyncio
 

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from wmbus.exceptions import InvalidMessageLength
+from pywirelessmbus.exceptions import InvalidMessageLength
 from typing import Optional, List, Dict, Any
 import time
 

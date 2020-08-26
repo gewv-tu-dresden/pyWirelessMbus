@@ -1,9 +1,15 @@
 from dataclasses import dataclass, field
-from wmbus.sticks import IM871A_USB
-from wmbus.devices import Device, WeptechOMSv1, WeptechOMSv2, MockDevice, EnergyCam
-from wmbus.exceptions import UnknownDeviceTypeError, UnknownDeviceVersion
-from wmbus.utils import WMbusMessage
-from wmbus.utils import IMSTMessage
+from pywirelessmbus.sticks import IM871A_USB
+from pywirelessmbus.devices import (
+    Device,
+    WeptechOMSv1,
+    WeptechOMSv2,
+    MockDevice,
+    EnergyCam,
+)
+from pywirelessmbus.exceptions import UnknownDeviceTypeError, UnknownDeviceVersion
+from pywirelessmbus.utils import WMbusMessage
+from pywirelessmbus.utils import IMSTMessage
 import asyncio
 import logging
 import struct

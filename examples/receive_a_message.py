@@ -1,8 +1,8 @@
-from wmbus import WMbus
+from pywirelessmbus import WMbus
 from time import sleep
 import asyncio
-from wmbus.devices import Device
-from wmbus.utils import WMbusMessage
+from pywirelessmbus.devices import Device
+from pywirelessmbus.utils import WMbusMessage
 import logging
 
 logger = logging.getLogger(__name__)

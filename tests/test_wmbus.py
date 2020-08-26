@@ -1,11 +1,11 @@
-from wmbus import WMbus
+from pywirelessmbus import WMbus
 import pty
 import pytest
 import os
 from time import sleep
-from wmbus.sticks import MockStick
-from wmbus.utils import IMSTMessage, WMbusMessage
-from wmbus.devices import MockDevice, Device
+from pywirelessmbus.sticks import MockStick
+from pywirelessmbus.utils import IMSTMessage, WMbusMessage
+from pywirelessmbus.devices import MockDevice, Device
 from dataclasses import dataclass
 
 

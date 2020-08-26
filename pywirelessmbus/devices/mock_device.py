@@ -1,5 +1,5 @@
-from wmbus.devices import Device
-from wmbus.utils.message import WMbusMessage
+from pywirelessmbus.devices import Device
+from pywirelessmbus.utils.message import WMbusMessage
 
 from typing import Optional
 

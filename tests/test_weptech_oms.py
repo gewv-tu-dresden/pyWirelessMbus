@@ -1,6 +1,6 @@
 import pytest
-from wmbus.devices import WeptechOMSv2, WeptechOMSv1
-from wmbus.utils import WMbusMessage, IMSTMessage
+from pywirelessmbus.devices import WeptechOMSv2, WeptechOMSv1
+from pywirelessmbus.utils import WMbusMessage, IMSTMessage
 
 
 def test_init_v1():

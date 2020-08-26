@@ -15,9 +15,9 @@ pip install pywirelessmbus
 For testing you can install all deps and start the module with that commands.
 
 ```
-pipenv install
-pipenv shell
-python example/monitor.py
+poetry install
+poetry shell
+python examples/monitor.py
 ```
 
 ## Plans

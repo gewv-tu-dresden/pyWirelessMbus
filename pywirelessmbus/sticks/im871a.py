@@ -4,8 +4,8 @@ from serial_asyncio import SerialTransport
 import asyncio
 import logging
 from dataclasses import dataclass
-from wmbus.exceptions import InvalidMessageLength
-from wmbus.utils import IMSTMessage
+from pywirelessmbus.exceptions import InvalidMessageLength
+from pywirelessmbus.utils import IMSTMessage
 from types import MethodType
 
 from typing import Callable, Any, Optional
@@ -258,11 +258,11 @@ class IM871A_USB:
         self.set_device_configuration(b"\x00\x20" + bytes([activate]))
 
     def stop_watch(self):
-        logger.info("Stop watching input from wMbus stick iM871a.")
+        logger.info("Stop watching input from pywirelessmbus stick iM871a.")
         self.keepalive = False
 
     def watch(self):
-        logger.info("Start to watch input from wMbus stick iM871a.")
+        logger.info("Start to watch input from pywirelessmbus stick iM871a.")
         [self.transport, self.message_protocol] = self._loop.run_until_complete(
             self._serial_coro
         )

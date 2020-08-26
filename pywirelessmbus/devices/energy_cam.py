@@ -1,10 +1,10 @@
-from wmbus.devices import Device
-from wmbus.utils.message import IMSTMessage
-from wmbus.utils.message import WMbusMessage
+from pywirelessmbus.devices import Device
+from pywirelessmbus.utils.message import IMSTMessage
+from pywirelessmbus.utils.message import WMbusMessage
 from typing import Optional, Tuple
 from time import time
 from datetime import datetime
-from wmbus.exceptions import InvalidMessageLength
+from pywirelessmbus.exceptions import InvalidMessageLength
 import logging
 
 logger = logging.getLogger(__name__)

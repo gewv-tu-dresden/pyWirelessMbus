@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "pyWirelessMbus"
+version = "0.2.2"
+description = "A tool to receive and send Wireless-M-Bus messages."
+authors = ["Karl Wolffgang <karl_eugen.wolffgang@tu-dresden.de>"]
+license = "MIT License"
+classifiers = [
+        "Development Status :: 3 - Alpha",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.7",
+        "License :: OSI Approved :: MIT License",
+        "Intended Audience :: Developers",
+        "Operating System :: Unix",
+        "Operating System :: POSIX",
+    ]
+homepage = "https://github.com/gewv-tu-dresden/pyWirelessMbus"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pyserial = "^3.4"
+pyserial-asyncio = "^0.4"
+
+[tool.poetry.dev-dependencies]
+mypy = "black"
+black = "^19.10b0"
+rope = "^0.17.0"
+pylint = "^2.6.0"
+pytest = "^6.0.1"
+commitizen = "^2.1.0"
+python-semantic-release = "^7.2.2"
+
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
