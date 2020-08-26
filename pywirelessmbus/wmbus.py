@@ -146,4 +146,3 @@ class WMbus:
 
         processed_message = device.process_new_message(wmbus_message)
         self.on_radio_message(device, processed_message)
-

@@ -97,4 +97,3 @@ class EnergyCam(Device):
         exponent = dec_value & 7
 
         return extension, unit, exponent
-
