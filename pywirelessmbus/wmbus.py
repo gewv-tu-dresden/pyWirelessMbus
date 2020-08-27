@@ -7,21 +7,19 @@ from pywirelessmbus.devices import (
     MockDevice,
     EnergyCam,
 )
-from pywirelessmbus.exceptions import UnknownDeviceTypeError, UnknownDeviceVersion
+from pywirelessmbus.exceptions import UnknownDeviceTypeError
 from pywirelessmbus.utils import WMbusMessage
 from pywirelessmbus.utils import IMSTMessage
+from pywirelessmbus.utils.utils import NOOP
 import asyncio
 import logging
-import struct
-from time import sleep
-from typing import Optional, Union, Dict, Callable, Any
+from typing import Optional, Union, Dict, Callable
 from os import environ
 
 logging.basicConfig(level=getattr(logging, environ.get("LOG_LEVEL") or "INFO"))
 logger = logging.getLogger(__name__)
 
 STICK_TYPES = {"IM871A_USB": IM871A_USB}
-NOOP = lambda *args: None
 
 # Manufacturer
 WEPTECH = b"\x5c\xb0"[::-1]

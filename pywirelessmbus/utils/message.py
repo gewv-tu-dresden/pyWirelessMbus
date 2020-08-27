@@ -22,22 +22,22 @@ class IMSTMessage:
     timestamp: Optional[bytes] = None
 
     def check_message_length(self):
-        if payload is None:
+        if self.payload is None:
             raise AttributeError("Need a payload to check message length.")
 
         if (
             len(self.payload)
             != 4
-            + self.payloadLength
+            + self.payload_length
             + (self.with_timestamp_field is not None) * 4
             + (self.with_rssi_field is not None)
             + (self.with_crc_field is not None) * 2
         ):
             raise InvalidMessageLength(
-                f"The length of the message '{message} differ from the given."
+                f"The length of the message {self.message_id} differ from the given."
             )
 
-        return true
+        return True
 
 
 class WMbusMessage:

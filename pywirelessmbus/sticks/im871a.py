@@ -1,12 +1,10 @@
-import serial
 import serial_asyncio
 from serial_asyncio import SerialTransport
 import asyncio
 import logging
 from dataclasses import dataclass
-from pywirelessmbus.exceptions import InvalidMessageLength
 from pywirelessmbus.utils import IMSTMessage
-from types import MethodType
+from pywirelessmbus.utils.utils import NOOP
 
 from typing import Callable, Any, Optional
 
@@ -14,7 +12,6 @@ from typing import Callable, Any, Optional
 logger = logging.getLogger(__name__)
 
 # CONTANTS
-NOOP = lambda *args: None
 START_OF_FRAME = b"\xa5"
 ZERO_LENGTH = b"\x00"
 
@@ -24,7 +21,7 @@ LINK_MODE = {
     1: "S1-m",
     2: "S2",
     3: "T1",
-    3: "T2",
+    4: "T2",
     5: "R2",
     6: "C1, Telegram Format A",
     7: "C1, Telegram Format B",
@@ -144,10 +141,6 @@ class MessageProtocol(asyncio.Protocol):
             with_crc_field=control_field & 0x8 > 0,
         )
         message.payload = data[3 : 4 + int(message.payload_length)]
-
-        crc = None
-        rssi = None
-        timestamp = None
 
         logging.debug("Receive raw message: %s", data.hex())
         logging.debug("Endpoint ID: %s", message.endpoint_id)
@@ -605,7 +598,7 @@ class IM871A_USB:
 
     def set_aes_decryption_key(self, table_index: int, device_id: str, key: bytes):
         """
-        Set multiple keys for divices. 
+        Set multiple keys for divices.
         The process activate the decryption. Resetable with factory reset.
         """
         logger.info(
