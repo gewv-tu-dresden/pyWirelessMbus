@@ -57,6 +57,8 @@ steps:
     environment:
       GH_TOKEN:
         from_secret: GITHUB_TOKEN
+      PYPI_TOKEN:
+        from_secret: PYPI_TOKEN
     commands:
       - mkdir dist
       - /root/.poetry/bin/poetry run semantic-release publish
