@@ -33,7 +33,7 @@ flake8 = "^3.8.3"
 [tool.semantic_release]
 version_variable = "pywirelessmbus/__init__.py:__version__"
 version_source = "commit"
-build_command = "poetry version $(git describe --tags) && poetry build"
+build_command = "/root/.poetry/bin/poetry version $(git describe --tags) && /root/.poetry/bin/poetry build"
 
 [build-system]
 requires = ["poetry>=0.12"]
