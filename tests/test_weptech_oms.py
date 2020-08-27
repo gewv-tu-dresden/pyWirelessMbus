@@ -1,4 +1,3 @@
-import pytest
 from pywirelessmbus.devices import WeptechOMSv2, WeptechOMSv1
 from pywirelessmbus.utils import WMbusMessage, IMSTMessage
 

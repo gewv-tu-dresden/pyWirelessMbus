@@ -1,0 +1,81 @@
+---
+kind: pipeline
+type: docker
+name: default
+
+steps:
+  - name: build_poetry
+    image: python
+    volumes:
+      - name: cache_poetry
+        path: /root/.cache/pypoetry
+      - name: poetry_bin
+        path: /root/.poetry/
+    commands:
+      - curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+      - /root/.poetry/bin/poetry install
+
+  - name: check_formatting
+    image: python
+    volumes:
+      - name: cache_poetry
+        path: /root/.cache/pypoetry
+      - name: poetry_bin
+        path: /root/.poetry/
+    commands:
+      - /root/.poetry/bin/poetry run black --check pywirelessmbus tests
+
+  - name: check_linting
+    image: python
+    failure: ignore
+    volumes:
+      - name: cache_poetry
+        path: /root/.cache/pypoetry
+      - name: poetry_bin
+        path: /root/.poetry/
+    commands:
+      - /root/.poetry/bin/poetry run flake8 pywirelessmbus tests
+
+  - name: tests
+    image: python
+    failure: ignore
+    volumes:
+      - name: cache_poetry
+        path: /root/.cache/pypoetry
+      - name: poetry_bin
+        path: /root/.poetry/
+    commands:
+      - /root/.poetry/bin/poetry run pytest -x
+
+  - name: make release
+    image: python
+    volumes:
+      - name: cache_poetry
+        path: /root/.cache/pypoetry
+      - name: poetry_bin
+        path: /root/.poetry/
+    environment:
+      GH_TOKEN:
+        from_secret: GITHUB_TOKEN
+    commands:
+      - mkdir dist
+      - /root/.poetry/bin/poetry run semantic-release publish
+    when:
+      branch:
+        include:
+          - master
+
+trigger:
+  event:
+    exclude:
+      - tag
+      - pull_request
+
+volumes:
+  - name: cache_poetry
+    host:
+      path: /tmp/drone/cache/pypoetry
+
+  - name: poetry_bin
+    host:
+      path: /tmp/drone/cache/poetry_bin

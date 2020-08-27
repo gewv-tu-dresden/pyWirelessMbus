@@ -1,12 +1,10 @@
-from dataclasses import dataclass
 from abc import ABC, abstractmethod
-from pywirelessmbus.sticks import IM871A_USB
-from typing import Optional, Any, List, Dict, Callable
+from typing import Callable
 from pywirelessmbus.utils import WMbusMessage
 import logging
+from pywirelessmbus.utils.utils import NOOP
 
 logger = logging.getLogger(__name__)
-NOOP = lambda *args: None
 
 
 class Device(ABC):
