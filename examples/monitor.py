@@ -1,17 +1,19 @@
 from pywirelessmbus import WMbus
 from time import sleep
 import asyncio
+import os
+
+port = os.getenv("SERIAL_PORT") or "/dev/ttyUSB0"
 
 
-def main():
-    loop = asyncio.get_event_loop()
-    wmbus = WMbus("IM871A_USB")
-    wmbus.start()
+async def main():
+    wmbus = WMbus("IM871A_USB", path=port)
+    await wmbus.start()
 
-    loop.run_forever()
-    loop.close()
+    while wmbus.running:
+        await asyncio.sleep(1)
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
 

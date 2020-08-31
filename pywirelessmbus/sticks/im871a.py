@@ -175,7 +175,7 @@ class IM871A_USB:
     on_new_message: Callable[[Any, bytes], None] = NOOP
     transport: Optional[SerialTransport] = None
     message_protocol: Optional[MessageProtocol] = None
-    on_radio_message: Callable[[Any, IMSTMessage], None] = NOOP
+    on_radio_message: Callable[[IMSTMessage], None] = NOOP
 
     def __post_init__(self):
         self._device_mode = None
@@ -254,11 +254,9 @@ class IM871A_USB:
         logger.info("Stop watching input from pywirelessmbus stick iM871a.")
         self.keepalive = False
 
-    def watch(self):
+    async def watch(self):
         logger.info("Start to watch input from pywirelessmbus stick iM871a.")
-        [self.transport, self.message_protocol] = self._loop.run_until_complete(
-            self._serial_coro
-        )
+        [self.transport, self.message_protocol] = await self._serial_coro
 
         # Register events
         self.message_protocol.on_message = self.process_message

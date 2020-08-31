@@ -36,11 +36,12 @@ def test_init(virtual_serial):
     assert type(wMbus) == WMbus
 
 
-def test_runtime(virtual_serial):
+@pytest.mark.asyncio
+async def test_runtime(virtual_serial):
     master, slave = virtual_serial
     wMbus = WMbus("IM871A_USB", path=os.ttyname(slave))
 
-    wMbus.start()
+    await wMbus.start()
     sleep(0.5)
     assert wMbus.running
     wMbus.stop()

@@ -43,7 +43,7 @@ class WMbus:
         self.running = False
         self._loop = asyncio.get_event_loop()
 
-    def start(self):
+    async def start(self):
         try:
             self.stick = STICK_TYPES[self.device_type](path=self.path)
         except KeyError:
@@ -54,7 +54,7 @@ class WMbus:
         # register events
         self.stick.on_radio_message = self.process_radio_message
         self.running = True
-        self.stick.watch()
+        await self.stick.watch()
         self.on_start()
 
     def stop(self):

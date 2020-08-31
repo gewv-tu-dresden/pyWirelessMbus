@@ -4,13 +4,14 @@ import asyncio
 from pywirelessmbus.devices import Device
 from pywirelessmbus.utils import WMbusMessage
 import logging
+import os
 
 logger = logging.getLogger(__name__)
+port = os.getenv("SERIAL_PORT") or "/dev/ttyUSB0"
 
 
-def main():
-    loop = asyncio.get_event_loop()
-    wmbus = WMbus("IM871A_USB")
+async def main():
+    wmbus = WMbus("IM871A_USB", path=port)
 
     def handle_device_message(device: Device, message: WMbusMessage):
         logger.info("Receive message per event from device %s:", device.id)
@@ -24,11 +25,11 @@ def main():
             )
 
     wmbus.on_radio_message = handle_device_message
-    wmbus.start()
+    await wmbus.start()
 
-    loop.run_forever()
-    loop.close()
+    while wmbus.running:
+        await asyncio.sleep(1)
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
