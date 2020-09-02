@@ -1,15 +1,13 @@
 import serial_asyncio
 from serial_asyncio import SerialTransport
 import asyncio
-import logging
+from loguru import logger
 from dataclasses import dataclass
 from pywirelessmbus.utils import IMSTMessage
 from pywirelessmbus.utils.utils import NOOP
 
 from typing import Callable, Any, Optional
 
-
-logger = logging.getLogger(__name__)
 
 # CONTANTS
 START_OF_FRAME = b"\xa5"
@@ -110,7 +108,7 @@ class MessageProtocol(asyncio.Protocol):
         logger.info("Serialport opened")
 
     def data_received(self, data):
-        logger.debug("data received %s", repr(data))
+        logger.debug("data received {}", repr(data))
         if data.startswith(START_OF_FRAME):
             asyncio.create_task(self.decode_message(data))
 
@@ -130,7 +128,7 @@ class MessageProtocol(asyncio.Protocol):
         self.transport.write(message)
 
     async def decode_message(self, data: bytes):
-        logger.debug("Receive new message: %s", data.hex())
+        logger.debug("Receive new message: {}", data.hex())
         control_field = data[1] >> 4
         message = IMSTMessage(
             endpoint_id=data[1] & 0xF,
@@ -142,28 +140,28 @@ class MessageProtocol(asyncio.Protocol):
         )
         message.payload = data[3 : 4 + int(message.payload_length)]
 
-        logging.debug("Receive raw message: %s", data.hex())
-        logging.debug("Endpoint ID: %s", message.endpoint_id)
-        logging.debug("Message ID: %s", message.message_id)
-        logging.debug("Payload Length: %s", message.payload_length)
-        logging.debug("Payload: %s", message.payload.hex())
+        logger.debug("Receive raw message: {}", data.hex())
+        logger.debug("Endpoint ID: {}", message.endpoint_id)
+        logger.debug("Message ID: {}", message.message_id)
+        logger.debug("Payload Length: {}", message.payload_length)
+        logger.debug("Payload: {}", message.payload.hex())
 
         if message.with_crc_field:
             message.crc = data[-2:]
-            logging.debug("CRC: %s", message.crc)
+            logger.debug("CRC: {}", message.crc)
             # TODO: add CRC Check
 
         if message.with_rssi_field:
             message.rssi = data[
                 4 + message.payload_length + message.with_timestamp_field * 4
             ]
-            logging.debug("RSSI: %s", message.rssi)
+            logger.debug("RSSI: {}", message.rssi)
 
         if message.with_timestamp_field:
             message.timestamp = data[
                 4 + message.payload_length : 4 + message.payload_length + 4
             ]
-            logging.debug("Timestamp: %s", message.timestamp)
+            logger.debug("Timestamp: {}", message.timestamp)
 
         self.on_message(message)
 
@@ -175,7 +173,7 @@ class IM871A_USB:
     on_new_message: Callable[[Any, bytes], None] = NOOP
     transport: Optional[SerialTransport] = None
     message_protocol: Optional[MessageProtocol] = None
-    on_radio_message: Callable[[IMSTMessage], None] = NOOP
+    on_radio_message: Callable[[Any, IMSTMessage], None] = NOOP
 
     def __post_init__(self):
         self._device_mode = None
@@ -195,19 +193,21 @@ class IM871A_USB:
         return self._device_mode
 
     @property
-    def link_mode(self):
+    def link_mode(self) -> int:
+        if self._link_mode is None:
+            return -1
         return self._link_mode
 
     @link_mode.setter
     def link_mode(self, new_link_mode: str):
-        logger.info("Set stick on link mode %s.", new_link_mode)
+        logger.info("Set stick on link mode {}.", new_link_mode)
         inv_link_mapping = {v: k for k, v in LINK_MODE.items()}
 
         link_mode_code = inv_link_mapping.get(new_link_mode)
 
         if link_mode_code is None:
             logger.error(
-                "Request a unknown link mode. Possible link modes are : %s",
+                "Request a unknown link mode. Possible link modes are : {}",
                 ", ".join(LINK_MODE.values()),
             )
             return
@@ -228,7 +228,7 @@ class IM871A_USB:
 
     @auto_rssi_attachment.setter
     def auto_rssi_attachment(self, activate: bool):
-        logger.info("Set RSSI Attachment to %s.", activate)
+        logger.info("Set RSSI Attachment to {}.", activate)
 
         if activate is None or not isinstance(activate, bool):
             logger.error("Tried to set with non bool param. Possible is True and False")
@@ -242,7 +242,7 @@ class IM871A_USB:
 
     @auto_timestamp_attachment.setter
     def auto_timestamp_attachment(self, activate: bool):
-        logger.info("Set Timestamp Attachment to %s.", activate)
+        logger.info("Set Timestamp Attachment to {}.", activate)
 
         if activate is None or not isinstance(activate, bool):
             logger.error("Tried to set with non bool param. Possible is True and False")
@@ -302,7 +302,7 @@ class IM871A_USB:
 
             status = bool(message.payload[1])
             logger.info(
-                "Set the AES Key. Operation %s",
+                "Set the AES Key. Operation {}",
                 "was successful" if status else "failed",
             )
         elif message.message_id == DEVMGMT_MSG_ENABLE_AES_ENCKEY_RSP:
@@ -314,7 +314,7 @@ class IM871A_USB:
 
             status = bool(message.payload[1])
             logger.info(
-                "Activating/Deactivating the AES Encrytion. Operation %s",
+                "Activating/Deactivating the AES Encrytion. Operation {}",
                 "was successful" if status else "failed",
             )
         elif message.message_id == DEVMGMT_MSG_AES_DEC_ERROR_IND:
@@ -322,7 +322,7 @@ class IM871A_USB:
                 "Failed to decrypt the message a device. Maybe the wrong or no key is stored."
             )
             if message.payload is not None:
-                logger.info("Device Header: %s", message.payload.hex())
+                logger.info("Device Header: {}", message.payload.hex())
         elif message.message_id == DEVMGMT_MSG_FACTORY_RESET_RES:
             if message.payload is None:
                 logger.error("Receive invalid response for factory reset.")
@@ -330,7 +330,7 @@ class IM871A_USB:
 
             status = bool(message.payload[1])
             logger.info(
-                "Requested the factory reset. Operation %s",
+                "Requested the factory reset. Operation {}",
                 "was successful" if status else "failed",
             )
         else:
@@ -342,14 +342,14 @@ class IM871A_USB:
             return
 
         logger.info("Receive device infos from stick:")
-        logger.info("Module Type: %s", info_message.payload[1:2].hex())
+        logger.info("Module Type: {}", info_message.payload[1:2].hex())
 
         self._device_mode = info_message.payload[2:3].hex()
-        logger.info("Device Mode: %s", self.device_mode)
+        logger.info("Device Mode: {}", self.device_mode)
 
-        logger.info("Firmware: %s", info_message.payload[3:4].hex())
-        logger.info("HCI Protocol version: %s", info_message.payload[4:5].hex())
-        logger.info("Device ID: %s", info_message.payload[5:9].hex())
+        logger.info("Firmware: {}", info_message.payload[3:4].hex())
+        logger.info("HCI Protocol version: {}", info_message.payload[4:5].hex())
+        logger.info("Device ID: {}", info_message.payload[5:9].hex())
 
     def process_device_config_message(self, config_message: IMSTMessage):
         logger.info("Receive device config from stick:")
@@ -365,7 +365,7 @@ class IM871A_USB:
         """
         if information_indicator_flag & 1:
             self._device_mode = config_message.payload[offset]
-            logger.info("Device Mode: %s", "Meter" if self.device_mode else "Other")
+            logger.info("Device Mode: {}", "Meter" if self.device_mode else "Other")
             offset += 1
 
         """
@@ -373,7 +373,7 @@ class IM871A_USB:
         """
         if information_indicator_flag & 2:
             self._link_mode = config_message.payload[offset]
-            logger.info("Link Mode: %s", LINK_MODE[self.link_mode])
+            logger.info("Link Mode: {}", LINK_MODE[self.link_mode])
             offset += 1
 
         """
@@ -381,7 +381,7 @@ class IM871A_USB:
         """
         if information_indicator_flag & 4:
             logger.info(
-                "WM-Bus C Field: %s", config_message.payload[offset : offset + 1].hex()
+                "WM-Bus C Field: {}", config_message.payload[offset : offset + 1].hex()
             )
             offset += 1
 
@@ -392,7 +392,7 @@ class IM871A_USB:
             self._manufacturer_id = config_message.payload[offset : offset + 2][
                 ::-1
             ].hex()
-            logger.info("WM-Bus Manufacturer ID: %s", self._manufacturer_id)
+            logger.info("WM-Bus Manufacturer ID: {}", self._manufacturer_id)
             offset += 2
 
         """
@@ -400,7 +400,7 @@ class IM871A_USB:
         """
         if information_indicator_flag & 16:
             self._device_id = config_message.payload[offset : offset + 4][::-1].hex()
-            logger.info("WM-Bus Device ID: %s", self.device_id)
+            logger.info("WM-Bus Device ID: {}", self.device_id)
             offset += 4
 
         """
@@ -408,7 +408,7 @@ class IM871A_USB:
         """
         if information_indicator_flag & 32:
             logger.info(
-                "WM-Bus Version: %s", config_message.payload[offset : offset + 1].hex()
+                "WM-Bus Version: {}", config_message.payload[offset : offset + 1].hex()
             )
             offset += 1
 
@@ -417,7 +417,7 @@ class IM871A_USB:
         """
         if information_indicator_flag & 64:
             logger.info(
-                "WM-Bus Device Type: %s",
+                "WM-Bus Device Type: {}",
                 config_message.payload[offset : offset + 1].hex(),
             )
             offset += 1
@@ -426,7 +426,7 @@ class IM871A_USB:
         Radio Channel
         """
         if information_indicator_flag & 128:
-            logger.info("Radio Channel: %s", RF_CHANNEL[config_message.payload[offset]])
+            logger.info("Radio Channel: {}", RF_CHANNEL[config_message.payload[offset]])
             offset += 1
 
         information_indicator_flag_2 = config_message.payload[offset]
@@ -437,7 +437,7 @@ class IM871A_USB:
         """
         if information_indicator_flag_2 & 1:
             logger.info(
-                "Radio Power Level: %s", RADIO_POWER[config_message.payload[offset]]
+                "Radio Power Level: {}", RADIO_POWER[config_message.payload[offset]]
             )
             offset += 1
 
@@ -446,7 +446,7 @@ class IM871A_USB:
         """
         if information_indicator_flag_2 & 2:
             logger.info(
-                "Radio Data Rate: %s", config_message.payload[offset : offset + 1].hex()
+                "Radio Data Rate: {}", config_message.payload[offset : offset + 1].hex()
             )
             offset += 1
 
@@ -454,14 +454,14 @@ class IM871A_USB:
         Radio Rx-Window
         """
         if information_indicator_flag_2 & 4:
-            logger.info("Radio Rx Window: %s ms", config_message.payload[offset])
+            logger.info("Radio Rx Window: {} ms", config_message.payload[offset])
             offset += 1
 
         """
         Auto Power Saving
         """
         if information_indicator_flag_2 & 8:
-            logger.info("Auto Power Saving: %s", bool(config_message.payload[offset]))
+            logger.info("Auto Power Saving: {}", bool(config_message.payload[offset]))
             offset += 1
 
         """
@@ -469,7 +469,7 @@ class IM871A_USB:
         """
         if information_indicator_flag_2 & 16:
             self._auto_rssi_attachment = bool(config_message.payload[offset])
-            logger.info("Auto RSSI Attachment: %s", self.auto_rssi_attachment)
+            logger.info("Auto RSSI Attachment: {}", self.auto_rssi_attachment)
             offset += 1
 
         """
@@ -477,21 +477,21 @@ class IM871A_USB:
         """
         if information_indicator_flag_2 & 32:
             self._auto_timestamp_attachment = bool(config_message.payload[offset])
-            logger.info("Auto Timestamp Attachment: %s", self.auto_timestamp_attachment)
+            logger.info("Auto Timestamp Attachment: {}", self.auto_timestamp_attachment)
             offset += 1
 
         """
         LED Control
         """
         if information_indicator_flag_2 & 64:
-            logger.info("LED Control: %s", bool(config_message.payload[offset]))
+            logger.info("LED Control: {}", bool(config_message.payload[offset]))
             offset += 1
 
         """
         RTC Control
         """
         if information_indicator_flag_2 & 128:
-            logger.info("RTC Control: %s", bool(config_message.payload[offset]))
+            logger.info("RTC Control: {}", bool(config_message.payload[offset]))
             offset += 1
 
     def send_message(self, message: bytes):
@@ -572,7 +572,7 @@ class IM871A_USB:
         )
 
     def _change_aes_encryption(self, enable: bool, persistant: bool = False):
-        logger.info("%s the aes encryption.", "Enable " if enable else "Disable ")
+        logger.info("{} the aes encryption.", "Enable " if enable else "Disable ")
 
         payload_length = b"\x02"
         control_field = bytes([(0 << 4) + DEVMGMT_ID])
@@ -600,7 +600,7 @@ class IM871A_USB:
         The process activate the decryption. Resetable with factory reset.
         """
         logger.info(
-            "Set decryption key for device %s on table position %s.",
+            "Set decryption key for device {} on table position {}.",
             device_id,
             table_index,
         )

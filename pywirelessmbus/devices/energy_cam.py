@@ -1,9 +1,7 @@
 from pywirelessmbus.devices import Device
 from pywirelessmbus.utils.message import WMbusMessage
 from typing import Optional, Tuple
-import logging
-
-logger = logging.getLogger(__name__)
+from loguru import logger
 
 METER_TYPE = {1: "Oil", 2: "Energy (electricity)", 3: "Gas", 7: "Water", 15: "Unknown"}
 UNITS = {0: "Wh", 2: "m3"}
@@ -23,15 +21,15 @@ class EnergyCam(Device):
         offset = 0
 
         logger.info(
-            "Got new message from %s meter with ID: %s",
+            "Got new message from {} meter with ID: {}",
             METER_TYPE[self.meter_type],
             self.id,
         )
-        logger.debug("Raw Message: %s", message.raw.hex())
+        logger.debug("Raw Message: {}", message.raw.hex())
 
         decryption_check = message.raw[15:17]
         if decryption_check != b"\x2f\x2f":
-            logger.debug("Decrytpion check: %s", decryption_check.hex())
+            logger.debug("Decrytpion check: {}", decryption_check.hex())
             logger.error(
                 "Receive a encrypted message. You should deactivate the encryption or set the AES Key for the device."
             )
@@ -39,7 +37,7 @@ class EnergyCam(Device):
 
         # Analyse DIF
         dif = message.raw[17:18]
-        logger.debug("DIF: %s", dif.hex())
+        logger.debug("DIF: {}", dif.hex())
         extension, error_state = self.analyse_dif(dif)
 
         if error_state:
@@ -53,7 +51,7 @@ class EnergyCam(Device):
 
         # Analyse VIF
         vif = message.raw[18 + offset : 19 + offset]
-        logger.debug("VIF: %s", vif.hex())
+        logger.debug("VIF: {}", vif.hex())
         extension, unit, exponent = self.analyse_vif(vif)
 
         if extension:
@@ -64,12 +62,12 @@ class EnergyCam(Device):
 
         # Analyse Value Field
         raw_value = int.from_bytes(message.raw[19 + offset : 23 + offset], "little")
-        logger.debug("Raw value: %s", raw_value)
-        logger.debug("Exponent: %s", exponent)
+        logger.debug("Raw value: {}", raw_value)
+        logger.debug("Exponent: {}", exponent)
         value = raw_value / 10 ** exponent
 
-        logger.info("New value from energy cam %s:", self.id)
-        logger.info("%s: %s %s", METER_TYPE[self.meter_type], value, unit)
+        logger.info("New value from energy cam {}:", self.id)
+        logger.info("{}: {} {}", METER_TYPE[self.meter_type], value, unit)
         message.add_value(value=value, unit=unit)
         return message
 
@@ -84,7 +82,7 @@ class EnergyCam(Device):
         dec_value = int.from_bytes(vif, "little")
         extension = bool(dec_value & 128)
         try:
-            logger.debug("Raw unit code: %s", (dec_value & 120) >> 3)
+            logger.debug("Raw unit code: {}", (dec_value & 120) >> 3)
             unit = UNITS[(dec_value & 120) >> 3]
         except KeyError:
             logger.warn("Receive unknown unit from energy cam. Set 'unset'")

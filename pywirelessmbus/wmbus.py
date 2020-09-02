@@ -12,12 +12,8 @@ from pywirelessmbus.utils import WMbusMessage
 from pywirelessmbus.utils import IMSTMessage
 from pywirelessmbus.utils.utils import NOOP
 import asyncio
-import logging
+from loguru import logger
 from typing import Optional, Union, Dict, Callable
-from os import environ
-
-logging.basicConfig(level=getattr(logging, environ.get("LOG_LEVEL") or "INFO"))
-logger = logging.getLogger(__name__)
 
 STICK_TYPES = {"IM871A_USB": IM871A_USB}
 
@@ -77,10 +73,10 @@ class WMbus:
         wmbus_message = WMbusMessage(message)
 
         logger.debug("Decoded to following wireless mbus message:")
-        logger.debug("Manufactur ID: %s", wmbus_message.manufacturer_id[::-1].hex())
-        logger.debug("Serial Number: %s", wmbus_message.serial_number[::-1].hex())
-        logger.debug("Version: %s", wmbus_message.version.hex())
-        logger.debug("Device Type: %s", wmbus_message.device_type.hex())
+        logger.debug("Manufactur ID: {}", wmbus_message.manufacturer_id[::-1].hex())
+        logger.debug("Serial Number: {}", wmbus_message.serial_number[::-1].hex())
+        logger.debug("Version: {}", wmbus_message.version.hex())
+        logger.debug("Device Type: {}", wmbus_message.device_type.hex())
 
         if device_id in self.devices:
             device = self.devices[device_id]
@@ -103,7 +99,7 @@ class WMbus:
                     )
                 else:
                     logger.error(
-                        "The message belongs to an unsupported weptech device. Version: %s",
+                        "The message belongs to an unsupported weptech device. Version: {}",
                         wmbus_message.version,
                     )
                     return
@@ -120,7 +116,7 @@ class WMbus:
                     )
                 else:
                     logger.error(
-                        "The message belongs to an unsupported fastforward device. Version: %s",
+                        "The message belongs to an unsupported fastforward device. Version: {}",
                         wmbus_message.version,
                     )
                     return
@@ -133,12 +129,12 @@ class WMbus:
                 )
             else:
                 logger.warning(
-                    "Got message from unknown manufactur: %s",
+                    "Got message from unknown manufactur: {}",
                     wmbus_message.manufacturer_id,
                 )
                 return
 
-            logger.info("Create new Device with id %s", device_id.hex())
+            logger.info("Create new Device with id {}", device_id.hex())
             self.devices[device_id] = device
             self.on_device_registration(device)
 

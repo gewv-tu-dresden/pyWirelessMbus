@@ -1,10 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Callable
 from pywirelessmbus.utils import WMbusMessage
-import logging
 from pywirelessmbus.utils.utils import NOOP
-
-logger = logging.getLogger(__name__)
 
 
 class Device(ABC):

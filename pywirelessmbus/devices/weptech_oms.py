@@ -4,9 +4,7 @@ from typing import Optional
 from time import time
 from datetime import datetime
 from pywirelessmbus.exceptions import InvalidMessageLength
-import logging
-
-logger = logging.getLogger(__name__)
+from loguru import logger
 
 
 class WeptechOMS(Device):
@@ -23,20 +21,20 @@ class WeptechOMS(Device):
         try:
             value = self.decode_value_block(message.raw[19:21])
             message.add_value(value, unit="°C")
-            logger.info("Temperature: %s °C", value)
+            logger.info("Temperature: {}°C", value)
         except ValueError:
             logger.error(
-                "Failed to decode the temperature value of the webtech oms device %s. Maybe AES encryption is activated.",
+                "Failed to decode the temperature value of the webtech oms device {}. Maybe AES encryption is activated.",
                 self.id,
             )
 
         self.updated_at = time()
-        logger.info("Receive new measurement from Weptech OMS Device %s", self.id)
-        logger.debug("Counter: %s", message.access_number)
-        logger.debug("Status: %s", bin(message.status))
+        logger.info("Receive new measurement from Weptech OMS Device {}", self.id)
+        logger.debug("Counter: {}", message.access_number)
+        logger.debug("Status: {}", bin(message.status))
         logger.info(
-            "Timestamp: %s",
-            datetime.utcfromtimestamp(self.updated_at).strftime("%Y-%m-%d %H:%M:%S"),
+            "Timestamp: {}",
+            datetime.utcfromtimestamp(self.updated_at).strftime("%Y-%m-%d %H:%M:%s"),
         )
 
         return message
@@ -94,10 +92,10 @@ class WeptechOMSv2(WeptechOMS):
         try:
             value = self.decode_value_block(message.raw[24:26])
             wmbus_message.add_value(value, unit="%")
-            logger.info("Humidity: %s %%", value)
+            logger.info("Humidity: {}%", value)
         except ValueError:
             logger.error(
-                "Failed to decode the humidity value of the webtech oms device %s. Maybe AES encryption is activated.",
+                "Failed to decode the humidity value of the webtech oms device {}. Maybe AES encryption is activated.",
                 self.id,
             )
 

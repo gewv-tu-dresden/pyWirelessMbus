@@ -19,6 +19,7 @@ homepage = "https://github.com/gewv-tu-dresden/pyWirelessMbus"
 python = "^3.8"
 pyserial = "^3.4"
 pyserial-asyncio = "^0.4"
+loguru = "^0.5.1"
 
 [tool.poetry.dev-dependencies]
 mypy = "black"

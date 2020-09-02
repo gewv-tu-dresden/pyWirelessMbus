@@ -2,10 +2,11 @@ from pywirelessmbus import WMbus
 from time import sleep
 import asyncio
 from pywirelessmbus.devices import Device
-import logging
 import os
+from loguru import logger
 
-logger = logging.getLogger(__name__)
+logger.enable("pywirelessmbus")
+
 port = os.getenv("SERIAL_PORT") or "/dev/ttyUSB0"
 
 
