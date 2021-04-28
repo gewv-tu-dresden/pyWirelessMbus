@@ -23,7 +23,7 @@ loguru = "^0.5.1"
 
 [tool.poetry.dev-dependencies]
 mypy = "black"
-black = "^19.10b0"
+black = "^21.4b1"
 rope = "^0.17.0"
 pylint = "^2.6.0"
 pytest = "^6.0.1"
