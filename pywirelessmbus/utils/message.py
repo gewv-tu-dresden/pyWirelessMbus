@@ -1,7 +1,26 @@
 from dataclasses import dataclass
 from pywirelessmbus.exceptions import InvalidMessageLength
-from typing import Optional, List, Dict, Any
+from typing import Optional, List
 import time
+from enum import Enum
+
+
+class ValueType(Enum):
+    TEMPERATURE = "temperature"
+    HUMIDITY = "humidity"
+    OIL = "oil"
+    ELECTRICAL_ENERGY = "electrical Energy"
+    GAS = "gas"
+    WATER = "water"
+    UNKNOWN = "unknown"
+
+
+@dataclass
+class Value:
+    value: float
+    unit: str
+    timestamp: float
+    type: ValueType
 
 
 @dataclass
@@ -50,7 +69,7 @@ class WMbusMessage:
     access_number: int
     status: int
     raw: bytes
-    values: List[Dict[str, Any]]
+    values: List[Value]
 
     def __init__(self, raw_message):
         self.raw = raw_message.payload
@@ -80,11 +99,19 @@ class WMbusMessage:
         ## CRC1
         ## TODO: Implement byte 28 and 29 if exists
 
-    def add_value(self, value: float, timestamp: float = None, unit: str = "unset"):
+    def add_value(
+        self,
+        value: float,
+        timestamp: float = None,
+        unit: str = "unset",
+        value_type: ValueType = ValueType.UNKNOWN,
+    ):
         if value is None:
             raise ValueError("Cant add empty value to processed message.")
 
         if timestamp is None:
             timestamp = time.time()
 
-        self.values.append({"value": value, "unit": unit, "timestamp": timestamp})
+        self.values.append(
+            Value(value=value, unit=unit, timestamp=timestamp, type=value_type)
+        )

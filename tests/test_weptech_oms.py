@@ -1,3 +1,4 @@
+from pywirelessmbus.utils.message import ValueType
 from pywirelessmbus.devices import WeptechOMSv2, WeptechOMSv1
 from pywirelessmbus.utils import WMbusMessage, IMSTMessage
 
@@ -16,7 +17,7 @@ def test_process_message_v1():
     device = WeptechOMSv1(device_id="device_id", index=0)
     raw_message = IMSTMessage(
         endpoint_id=2,
-        message_id=3,
+        message_id=b"\x03",
         payload_length=30,
         with_timestamp_field=False,
         with_crc_field=False,
@@ -25,16 +26,17 @@ def test_process_message_v1():
     )
     message = WMbusMessage(raw_message)
     final_message = device.process_new_message(message)
-    assert final_message.values[0].get("timestamp") is not None
-    assert final_message.values[0].get("unit") == "°C"
-    assert final_message.values[0].get("value") == 23.9
+    assert final_message.values[0].timestamp is not None
+    assert final_message.values[0].unit == "°C"
+    assert final_message.values[0].value == 23.9
+    assert final_message.values[0].type == ValueType.TEMPERATURE
 
 
 def test_process_message_v2():
     device = WeptechOMSv2(device_id="device_id", index=0)
     raw_message = IMSTMessage(
         endpoint_id=2,
-        message_id=3,
+        message_id=b"\x03",
         payload_length=46,
         with_timestamp_field=False,
         with_crc_field=False,
@@ -43,9 +45,11 @@ def test_process_message_v2():
     )
     message = WMbusMessage(raw_message)
     final_message = device.process_new_message(message)
-    assert final_message.values[0].get("timestamp") is not None
-    assert final_message.values[0].get("unit") == "°C"
-    assert final_message.values[0].get("value") == 23.9
-    assert final_message.values[1].get("timestamp") is not None
-    assert final_message.values[1].get("unit") == "%"
-    assert final_message.values[1].get("value") == 50
+    assert final_message.values[0].timestamp is not None
+    assert final_message.values[0].unit == "°C"
+    assert final_message.values[0].value == 23.9
+    assert final_message.values[0].type == ValueType.TEMPERATURE
+    assert final_message.values[1].timestamp is not None
+    assert final_message.values[1].unit == "%"
+    assert final_message.values[1].value == 50
+    assert final_message.values[1].value == ValueType.HUMIDITY

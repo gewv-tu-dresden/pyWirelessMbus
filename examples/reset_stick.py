@@ -1,7 +1,5 @@
 from pywirelessmbus import WMbus
-from time import sleep
 import asyncio
-from pywirelessmbus.devices import Device
 import os
 from loguru import logger
 

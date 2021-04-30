@@ -1,5 +1,5 @@
 from pywirelessmbus.devices import Device
-from pywirelessmbus.utils.message import WMbusMessage
+from pywirelessmbus.utils.message import ValueType, WMbusMessage
 from typing import Optional
 from time import time
 from datetime import datetime
@@ -20,7 +20,7 @@ class WeptechOMS(Device):
     def process_new_message(self, message: WMbusMessage) -> WMbusMessage:
         try:
             value = self.decode_value_block(message.raw[19:21])
-            message.add_value(value, unit="°C")
+            message.add_value(value, unit="°C", value_type=ValueType.TEMPERATURE)
             logger.info("Temperature: {}°C", value)
         except ValueError:
             logger.error(
@@ -91,7 +91,7 @@ class WeptechOMSv2(WeptechOMS):
         # decode humidity
         try:
             value = self.decode_value_block(message.raw[24:26])
-            wmbus_message.add_value(value, unit="%")
+            wmbus_message.add_value(value, unit="%", value_type=ValueType.HUMIDITY)
             logger.info("Humidity: {}%", value)
         except ValueError:
             logger.error(

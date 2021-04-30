@@ -1,9 +1,15 @@
 from pywirelessmbus.devices import Device
-from pywirelessmbus.utils.message import WMbusMessage
+from pywirelessmbus.utils.message import ValueType, WMbusMessage
 from typing import Optional, Tuple
 from loguru import logger
 
-METER_TYPE = {1: "Oil", 2: "Energy (electricity)", 3: "Gas", 7: "Water", 15: "Unknown"}
+METER_TYPE = {
+    1: ValueType.OIL,
+    2: ValueType.ELECTRICAL_ENERGY,
+    3: ValueType.GAS,
+    7: ValueType.WATER,
+    15: ValueType.UNKNOWN,
+}
 UNITS = {0: "Wh", 2: "m3"}
 
 
@@ -41,10 +47,10 @@ class EnergyCam(Device):
         extension, error_state = self.analyse_dif(dif)
 
         if error_state:
-            logger.warn("Receive old value. Energy Cam failed to read new value.")
+            logger.warning("Receive old value. Energy Cam failed to read new value.")
 
         if extension:
-            logger.warn(
+            logger.warning(
                 "Receive multiple datainformation fields. Only single are supported. Ignore second field."
             )
             offset += 1
@@ -55,7 +61,7 @@ class EnergyCam(Device):
         extension, unit, exponent = self.analyse_vif(vif)
 
         if extension:
-            logger.warn(
+            logger.warning(
                 "Receive multiple valueinformation fields. Only single are supported. Ignore second field."
             )
             offset += 1
@@ -68,7 +74,9 @@ class EnergyCam(Device):
 
         logger.info("New value from energy cam {}:", self.id)
         logger.info("{}: {} {}", METER_TYPE[self.meter_type], value, unit)
-        message.add_value(value=value, unit=unit)
+        message.add_value(
+            value=value, unit=unit, value_type=METER_TYPE[self.meter_type]
+        )
         return message
 
     def analyse_dif(self, dif: bytes) -> Tuple[bool, bool]:
@@ -85,7 +93,7 @@ class EnergyCam(Device):
             logger.debug("Raw unit code: {}", (dec_value & 120) >> 3)
             unit = UNITS[(dec_value & 120) >> 3]
         except KeyError:
-            logger.warn("Receive unknown unit from energy cam. Set 'unset'")
+            logger.warning("Receive unknown unit from energy cam. Set 'unset'")
             unit = "unset"
 
         exponent = dec_value & 7

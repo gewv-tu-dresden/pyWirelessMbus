@@ -1,6 +1,4 @@
-from logging import log
 from pywirelessmbus import WMbus
-from time import sleep
 import asyncio
 from pywirelessmbus.devices import Device
 from pywirelessmbus.utils import WMbusMessage
@@ -21,9 +19,9 @@ async def main():
         for value in message.values:
             logger.info(
                 "Stored value: {} {} Time: {}",
-                value["value"],
-                value["unit"],
-                value["timestamp"],
+                value.value,
+                value.unit,
+                value.timestamp,
             )
 
     wmbus.on_radio_message = handle_device_message
