@@ -4,6 +4,10 @@ This module can decode messages from wireless M-Bus devices. The messages must r
 
 On the device side pyWirelessMbus reads the messages from the Temp/Hum Sensor [Munia from Weptech](https://www.weptech.de/en/wireless-m-bus/humidity-temperature-sensor-munia.html) and the [EnergyCam from Q-loud](https://www.q-loud.de/energycam).
 
+## Requirements
+
+Python >= 3.8
+
 ## Installation
 
 ```
