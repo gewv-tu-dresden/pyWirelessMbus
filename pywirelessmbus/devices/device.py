@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Callable, Any
+from typing import Callable
 from pywirelessmbus.utils import WMbusMessage
 from pywirelessmbus.utils.utils import NOOP
 

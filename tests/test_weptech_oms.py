@@ -52,4 +52,4 @@ def test_process_message_v2():
     assert final_message.values[1].timestamp is not None
     assert final_message.values[1].unit == "%"
     assert final_message.values[1].value == 50
-    assert final_message.values[1].value == ValueType.HUMIDITY
+    assert final_message.values[1].type == ValueType.HUMIDITY
