@@ -5,5 +5,5 @@ from loguru import logger
 # disable logger on default because this is a lib
 logger.disable(__name__)
 
-__version__ = "1.4.0"
+__version__ = "1.4.1"
 __all__ = ["WMbus", "ValueType", "WMbusMessage", "IMSTMessage"]

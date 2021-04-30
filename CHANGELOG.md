@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.4.1 (2021-04-30)
+### Fix
+* **tests:** Wrong assertion for value type ([`c2f623e`](https://github.com/gewv-tu-dresden/pyWirelessMbus/commit/c2f623e4c0069308b46eeae13f467c8a275fc830))
+
 ## v1.4.0 (2021-04-30)
 ### Feature
 * **main:** Values of messages have now a specific type ([`f342181`](https://github.com/gewv-tu-dresden/pyWirelessMbus/commit/f342181b5cc0059bc3573230f58aa674da8ecd52))
