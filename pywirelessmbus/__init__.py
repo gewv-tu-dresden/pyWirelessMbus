@@ -4,5 +4,5 @@ from loguru import logger
 # disable logger on default because this is a lib
 logger.disable(__name__)
 
-__version__ = "1.2.1"
+__version__ = "1.3.0"
 __all__ = ["WMbus"]
