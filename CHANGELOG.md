@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v1.4.0 (2021-04-30)
+### Feature
+* **main:** Values of messages have now a specific type ([`f342181`](https://github.com/gewv-tu-dresden/pyWirelessMbus/commit/f342181b5cc0059bc3573230f58aa674da8ecd52))
+
+### Fix
+* **main:** Export value type ([`52ee149`](https://github.com/gewv-tu-dresden/pyWirelessMbus/commit/52ee14987b236b88a25eb0aeef8c28d4a0fe3248))
+
 ## v1.3.0 (2021-04-30)
 ### Feature
 * **main:** Possible to set a label for a registered device ([`00ea4fe`](https://github.com/gewv-tu-dresden/pyWirelessMbus/commit/00ea4fe872040d3b813fe433f3fe99ef3dec8d78))
