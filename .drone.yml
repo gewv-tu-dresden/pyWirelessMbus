@@ -27,7 +27,6 @@ steps:
 
   - name: check_linting
     image: python
-    failure: ignore
     volumes:
       - name: cache_poetry
         path: /root/.cache/pypoetry
@@ -38,7 +37,6 @@ steps:
 
   - name: tests
     image: python
-    failure: ignore
     volumes:
       - name: cache_poetry
         path: /root/.cache/pypoetry
