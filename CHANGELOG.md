@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.4.2 (2021-04-30)
+### Fix
+* **ci:** Linting and tests are required ([`1b9a673`](https://github.com/gewv-tu-dresden/pyWirelessMbus/commit/1b9a6736878bb100b7db4a38ba417a229b7230bc))
+
 ## v1.4.1 (2021-04-30)
 ### Fix
 * **tests:** Wrong assertion for value type ([`c2f623e`](https://github.com/gewv-tu-dresden/pyWirelessMbus/commit/c2f623e4c0069308b46eeae13f467c8a275fc830))
