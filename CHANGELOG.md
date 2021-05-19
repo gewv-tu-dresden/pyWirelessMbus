@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.5.0 (2021-05-19)
+### Feature
+* **device:** Add a ctx property to devices to store informations ([`6c9b2ac`](https://github.com/gewv-tu-dresden/pyWirelessMbus/commit/6c9b2ac4aa87e99cfbf2c49506663cda9d5d9654))
+
 ## v1.4.2 (2021-04-30)
 ### Fix
 * **ci:** Linting and tests are required ([`1b9a673`](https://github.com/gewv-tu-dresden/pyWirelessMbus/commit/1b9a6736878bb100b7db4a38ba417a229b7230bc))
