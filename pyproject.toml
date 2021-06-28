@@ -7,7 +7,7 @@ license = "MIT License"
 classifiers = [
         "Development Status :: 3 - Alpha",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.7",
         "License :: OSI Approved :: MIT License",
         "Intended Audience :: Developers",
         "Operating System :: Unix",
@@ -16,7 +16,7 @@ classifiers = [
 homepage = "https://github.com/gewv-tu-dresden/pyWirelessMbus"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.7"
 pyserial = "^3.4"
 pyserial-asyncio = "^0.4"
 loguru = "^0.5.1"
