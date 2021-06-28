@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.5.1 (2021-06-28)
+### Fix
+* **main:** Expand python deps to 3.7 ([`0254787`](https://github.com/gewv-tu-dresden/pyWirelessMbus/commit/025478759d683b90abce7966ab1bf381db41d39c))
+
 ## v1.5.0 (2021-05-19)
 ### Feature
 * **device:** Add a ctx property to devices to store informations ([`6c9b2ac`](https://github.com/gewv-tu-dresden/pyWirelessMbus/commit/6c9b2ac4aa87e99cfbf2c49506663cda9d5d9654))
