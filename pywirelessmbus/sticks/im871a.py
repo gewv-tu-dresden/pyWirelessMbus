@@ -1,13 +1,13 @@
-import serial_asyncio
-from serial_asyncio import SerialTransport
 import asyncio
-from loguru import logger
 from dataclasses import dataclass
+from typing import Any, Callable, Optional
+
+import serial_asyncio
+from loguru import logger
+from serial_asyncio import SerialTransport
+
 from pywirelessmbus.utils import IMSTMessage
 from pywirelessmbus.utils.utils import NOOP
-
-from typing import Callable, Any, Optional
-
 
 # CONTANTS
 START_OF_FRAME = b"\xa5"

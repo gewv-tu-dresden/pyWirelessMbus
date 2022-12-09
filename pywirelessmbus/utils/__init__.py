@@ -1,4 +1,3 @@
-from pywirelessmbus.utils.message import IMSTMessage
-from pywirelessmbus.utils.message import WMbusMessage
+from pywirelessmbus.utils.message import IMSTMessage, WMbusMessage
 
 __all__ = ["IMSTMessage", "WMbusMessage"]

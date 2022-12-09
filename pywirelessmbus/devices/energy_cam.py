@@ -1,7 +1,9 @@
+from typing import Optional, Tuple
+
+from loguru import logger
+
 from pywirelessmbus.devices import Device
 from pywirelessmbus.utils.message import ValueType, WMbusMessage
-from typing import Optional, Tuple
-from loguru import logger
 
 METER_TYPE = {
     1: ValueType.OIL,

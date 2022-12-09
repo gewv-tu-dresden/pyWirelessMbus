@@ -1,7 +1,9 @@
 # Changelog
 
 <!--next-version-placeholder-->
-
+## v1.5.3 (2022-12-09)
+### Fix
+* **main:** Update pyhton deps
 ## v1.5.1 (2021-06-28)
 ### Fix
 * **main:** Expand python deps to 3.7 ([`0254787`](https://github.com/gewv-tu-dresden/pyWirelessMbus/commit/025478759d683b90abce7966ab1bf381db41d39c))

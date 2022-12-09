@@ -1,8 +1,9 @@
-from dataclasses import dataclass
-from pywirelessmbus.exceptions import InvalidMessageLength
-from typing import Optional, List
 import time
+from dataclasses import dataclass
 from enum import Enum
+from typing import List, Optional
+
+from pywirelessmbus.exceptions import InvalidMessageLength
 
 
 class ValueType(Enum):
